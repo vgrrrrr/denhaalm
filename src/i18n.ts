@@ -109,6 +109,8 @@ const STRINGS = {
   'care.dragfeed': { de: 'Zieh den Snack zu {name}!', en: 'Drag the snack to {name}!' },
   'care.scrubhint': { de: 'Reibe sanft über {name}!', en: 'Gently scrub {name}!' },
   'care.cancel': { de: 'Abbrechen', en: 'Cancel' },
+  'care.dragblanket': { de: 'Zieh die Decke über {name}!', en: 'Drag the blanket over {name}!' },
+  'care.tucked': { de: 'Gut zugedeckt · schlaf schön, {name}', en: 'All tucked in · sleep tight, {name}' },
   'care.sparkling': { de: 'Blitzeblank!', en: 'Squeaky clean!' },
 
   /* play */

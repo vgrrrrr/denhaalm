@@ -132,6 +132,15 @@ export const characterByCode = (code: string): Character | undefined =>
 export const spriteSrc = (id: CharacterId, stage: 'baby' | 'grown') =>
   `/haalm/characters/${id}/${stage}.png`
 
+/** characters that have dedicated pajama art for sleeping */
+export const SLEEP_SPRITES = new Set<CharacterId>(['gigi', 'elli', 'roary', 'zeddy', 'hoppy'])
+
+export const hasSleepSprite = (id: CharacterId) => SLEEP_SPRITES.has(id)
+
+/** the sprite to show right now — pajamas while sleeping, when available */
+export const displaySpriteSrc = (id: CharacterId, stage: 'baby' | 'grown', sleeping: boolean) =>
+  sleeping && hasSleepSprite(id) ? `/haalm/characters/${id}/sleep.png` : spriteSrc(id, stage)
+
 export const portraitSrc = (id: CharacterId) => `/haalm/characters/${id}/portrait.png`
 
 /** total roster size shown in the herd counter — matches "8 / 24 unlocked" */

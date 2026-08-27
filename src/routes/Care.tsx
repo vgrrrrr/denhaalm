@@ -9,7 +9,7 @@ import { stageOf, useHaalm } from '../store/haalm'
 import { useT } from '../i18n'
 
 type CareAnim = 'feed' | 'clean' | 'sleep' | 'cuddle' | null
-type CareMode = 'idle' | 'feeding' | 'scrubbing'
+type CareMode = 'idle' | 'feeding' | 'scrubbing' | 'tucking'
 
 interface Floater {
   id: number
@@ -179,13 +179,33 @@ export function Care() {
 
   const onSleep = () => {
     if (mode !== 'idle') return
-    toggleSleep(petId)
-    if (!pet.sleeping) {
-      fireBurst('stars')
-      playAnim('sleep', t('care.dozing', { name: char.name }), 1800)
-    } else {
+    if (pet.sleeping) {
+      toggleSleep(petId)
       fireBurst('sparkles')
       setNoteBriefly(t('care.woke', { name: char.name }))
+      return
+    }
+    // tucking in: drag the blanket over the pet
+    setDragKey((k) => k + 1)
+    setMode('tucking')
+    setNote(t('care.dragblanket', { name: char.name }))
+  }
+
+  const onBlanketDragEnd = (pointX: number, pointY: number) => {
+    const rect = petRef.current?.getBoundingClientRect()
+    const hit =
+      rect &&
+      pointX > rect.left - 20 &&
+      pointX < rect.right + 20 &&
+      pointY > rect.top - 20 &&
+      pointY < rect.bottom + 20
+    if (hit) {
+      setMode('idle')
+      toggleSleep(petId)
+      fireBurst('stars')
+      playAnim('sleep', t('care.tucked', { name: char.name }), 2000)
+    } else {
+      setDragKey((k) => k + 1)
     }
   }
   const onCuddle = () => {
@@ -394,6 +414,45 @@ export function Care() {
             >
               <img src="/haalm/ui/fx/berry.svg" alt="" style={{ width: 34, height: 38 }} />
             </motion.span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* draggable blanket */}
+      <AnimatePresence>
+        {mode === 'tucking' && (
+          <motion.div
+            key={`blanket-${dragKey}`}
+            drag
+            dragMomentum={false}
+            whileDrag={{ scale: 1.08, rotate: -3 }}
+            onDragEnd={(_e, info) => onBlanketDragEnd(info.point.x, info.point.y)}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.6 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 116px)',
+              marginLeft: -55,
+              cursor: 'grab',
+              zIndex: 30,
+              touchAction: 'none',
+            }}
+          >
+            <motion.img
+              src="/haalm/ui/fx/blanket.svg"
+              alt=""
+              animate={{ rotate: [-1.5, 1.5, -1.5] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              style={{
+                width: 110,
+                display: 'block',
+                filter: 'drop-shadow(0 6px 14px rgba(31,31,31,0.18))',
+                pointerEvents: 'none',
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

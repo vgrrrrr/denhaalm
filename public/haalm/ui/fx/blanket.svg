@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="170" viewBox="0 0 300 170" preserveAspectRatio="none">
+  <!-- cozy quilted blanket that tucks a sleeping haalm in -->
+  <path d="M14 34 Q45 16 80 26 Q115 36 150 24 Q185 12 220 26 Q255 38 286 28 Q298 60 296 110 Q294 152 270 160 Q150 174 30 160 Q6 152 4 110 Q2 60 14 34 Z" fill="#CDB9DB"/>
+  <path d="M14 34 Q45 16 80 26 Q115 36 150 24 Q185 12 220 26 Q255 38 286 28 Q290 44 292 62 Q255 74 220 62 Q185 50 150 62 Q115 74 80 64 Q45 55 12 64 Q11 46 14 34 Z" fill="#DCCDE8"/>
+  <path d="M14 34 Q45 16 80 26 Q115 36 150 24 Q185 12 220 26 Q255 38 286 28" fill="none" stroke="#BBA5CD" stroke-width="4" stroke-linecap="round"/>
+  <!-- quilt seams -->
+  <g stroke="#BBA5CD" stroke-width="1.6" opacity="0.55" fill="none">
+    <path d="M20 100 Q150 84 282 100"/>
+    <path d="M26 134 Q150 120 276 134"/>
+    <path d="M84 66 Q92 116 88 158"/>
+    <path d="M152 62 Q154 114 152 164"/>
+    <path d="M218 64 Q212 116 216 158"/>
+  </g>
+  <!-- dreamy pattern -->
+  <g fill="#FFFBF7" opacity="0.9">
+    <path d="M58 92 Q59.5 98 66 99 Q59.5 100 58 106 Q56.5 100 50 99 Q56.5 98 58 92 Z"/>
+    <path d="M245 96 Q246.5 102 253 103 Q246.5 104 245 110 Q243.5 104 237 103 Q243.5 102 245 96 Z"/>
+    <path d="M120 124 Q121.5 130 128 131 Q121.5 132 120 138 Q118.5 132 112 131 Q118.5 130 120 124 Z"/>
+    <path d="M196 130 a9 9 0 1 0 8 13 a7 7 0 1 1 -8 -13 Z"/>
+    <path d="M78 142 a7 7 0 1 0 6 10 a5.5 5.5 0 1 1 -6 -10 Z"/>
+    <circle cx="160" cy="96" r="3" opacity="0.7"/>
+    <circle cx="266" cy="140" r="2.6" opacity="0.7"/>
+    <circle cx="38" cy="120" r="2.6" opacity="0.7"/>
+  </g>
+</svg>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Icon } from './ui'
 import { ParticleBurst, type ParticleKind } from './Particles'
-import { spriteSrc, type CharacterId } from '../data/characters'
+import { displaySpriteSrc, hasSleepSprite, type CharacterId } from '../data/characters'
 
 type Behavior = 'idle' | 'hop' | 'look' | 'wiggle'
 type Reaction = { kind: ParticleKind; seq: number } | null
@@ -163,7 +163,7 @@ export function PetSprite({
           style={{ transformOrigin: '50% 100%' }}
         >
           <img
-            src={spriteSrc(id, stage)}
+            src={displaySpriteSrc(id, stage, sleeping)}
             alt={id}
             style={{
               width: '100%',
@@ -172,7 +172,7 @@ export function PetSprite({
               objectFit: 'contain',
               objectPosition: 'center bottom',
               transform: facing === -1 ? 'scaleX(-1)' : undefined,
-              filter: sleeping ? 'brightness(0.94)' : undefined,
+              filter: sleeping && !hasSleepSprite(id) ? 'brightness(0.94)' : undefined,
               pointerEvents: 'none',
             }}
             draggable={false}
@@ -196,6 +196,30 @@ export function PetSprite({
             zIndex: 2,
             pointerEvents: 'none',
             transformOrigin: '50% 100%',
+          }}
+        />
+      )}
+
+      {/* tucked-in blanket over the sleeping pet */}
+      {sleeping && (
+        <motion.img
+          src="/haalm/ui/fx/blanket.svg"
+          alt=""
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: [0, 1.5, 0] }}
+          transition={{
+            opacity: { duration: 0.4 },
+            y: { duration: 5.5, repeat: Infinity, ease: 'easeInOut' },
+          }}
+          style={{
+            position: 'absolute',
+            bottom: '-3%',
+            left: '-7%',
+            width: '114%',
+            height: '48%',
+            zIndex: 3,
+            pointerEvents: 'none',
+            filter: 'drop-shadow(0 -2px 6px rgba(31,31,31,0.08))',
           }}
         />
       )}
