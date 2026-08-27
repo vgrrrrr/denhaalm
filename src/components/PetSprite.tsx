@@ -188,8 +188,9 @@ export function PetSprite({
           animate={{ rotate: [-0.6, 0.6, -0.6] }}
           transition={{ duration: 5.4, repeat: Infinity, ease: 'easeInOut' }}
           style={{
+            // sits low so the characters' feet stay visible on the patch
             position: 'absolute',
-            bottom: '-3%',
+            bottom: '-9%',
             left: '-11%',
             width: '122%',
             zIndex: 2,
