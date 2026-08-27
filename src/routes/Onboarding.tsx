@@ -4,11 +4,13 @@ import { HaalmWordmark, SoftButton, softEase } from '../components/ui'
 import { PetSprite } from '../components/PetSprite'
 import { WorldScene } from '../components/WorldScene'
 import { useHaalm } from '../store/haalm'
+import { useT } from '../i18n'
 
 export function Onboarding() {
   const navigate = useNavigate()
   const completeOnboarding = useHaalm((s) => s.completeOnboarding)
   const hasPets = useHaalm((s) => Object.keys(s.pets).length > 0)
+  const { t } = useT()
 
   return (
     <div className="page page--bare" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -24,13 +26,13 @@ export function Onboarding() {
           gap: 14,
         }}
       >
-        <span style={{ fontSize: 15, color: 'var(--muted)' }}>welcome to</span>
+        <span style={{ fontSize: 15, color: 'var(--muted)' }}>{t('onb.welcome')}</span>
         <HaalmWordmark width={168} />
         <p
           className="muted"
           style={{ fontSize: 15, lineHeight: 1.45, textAlign: 'center', maxWidth: 240, marginTop: 2 }}
         >
-          A cozy alpine home for your Haalm animals.
+          {t('onb.tagline')}
         </p>
       </motion.div>
 
@@ -88,7 +90,7 @@ export function Onboarding() {
             navigate('/scan')
           }}
         >
-          Start your adventure
+          {t('onb.start')}
         </SoftButton>
         <SoftButton
           variant="ghost"
@@ -97,7 +99,7 @@ export function Onboarding() {
             navigate(hasPets ? '/home' : '/scan')
           }}
         >
-          I already have a Haalm
+          {t('onb.already')}
         </SoftButton>
       </motion.div>
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { GameShell, useGameShell } from './GameShell'
 import { useActivePet } from '../../store/haalm'
+import { useT } from '../../i18n'
 import { portraitSrc } from '../../data/characters'
 
 const GAME_SECONDS = 30
@@ -16,12 +17,13 @@ interface Berry {
 export function BerryBounce() {
   const [score, setScore] = useState(0)
   const [playing, setPlaying] = useState(false)
+  const { t } = useT()
 
   return (
     <GameShell
       gameId="berry-bounce"
       title="Berry Bounce"
-      howTo="Slide your basket left and right to catch the falling berries. Golden berries count triple. You have 30 seconds!"
+      howTo={t('game.berry.howto')}
       score={score}
       playing={playing}
       onStart={() => {

@@ -4,6 +4,7 @@ import { SoftButton, softSpring } from './ui'
 import { ParticleBurst } from './Particles'
 import { characterById, spriteSrc, type CharacterId } from '../data/characters'
 import { GROWN_LEVEL, levelFromXp, useHaalm, type PetState } from '../store/haalm'
+import { useT } from '../i18n'
 
 interface Pending {
   id: CharacterId
@@ -20,6 +21,7 @@ export function CelebrationLayer() {
   const celebrated = useHaalm((s) => s.celebrated)
   const markCelebrated = useHaalm((s) => s.markCelebrated)
   const [active, setActive] = useState<Pending | null>(null)
+  const { t } = useT()
 
   const pending = useMemo<Pending | null>(() => {
     for (const pet of Object.values(pets) as PetState[]) {
@@ -87,9 +89,7 @@ export function CelebrationLayer() {
             />
             <ParticleBurst kind="sparkles" trigger={active.level} count={6} />
           </div>
-          <span style={{ fontSize: 14 }}>
-            <strong style={{ fontWeight: 500 }}>{char.name}</strong> reached Lv. {active.level}!
-          </span>
+          <span style={{ fontSize: 14 }}>{t('cele.reached', { name: char.name, n: active.level })}</span>
         </motion.div>
       )}
 
@@ -130,7 +130,7 @@ export function CelebrationLayer() {
             animate={{ opacity: 1, y: 0 }}
             style={{ fontSize: 15, color: 'var(--muted)' }}
           >
-            something wonderful happened…
+            {t('cele.something')}
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 6 }}
@@ -138,7 +138,7 @@ export function CelebrationLayer() {
             transition={{ delay: 0.15 }}
             style={{ fontSize: 30, lineHeight: 1.1, marginTop: 6 }}
           >
-            {char.name} grew up!
+            {t('cele.grewup', { name: char.name })}
           </motion.h1>
 
           <div style={{ position: 'relative', margin: '26px 0', height: 'min(52vw, 240px)' }}>
@@ -175,7 +175,7 @@ export function CelebrationLayer() {
           </div>
 
           <p className="muted" style={{ fontSize: 14, maxWidth: 250, lineHeight: 1.45 }}>
-            All your love and care made {char.name} a grown {char.species.toLowerCase()}.
+            {t('cele.body', { name: char.name })}
           </p>
 
           <motion.div
@@ -190,7 +190,7 @@ export function CelebrationLayer() {
                 setActive(null)
               }}
             >
-              How wonderful!
+              {t('cele.wonderful')}
             </SoftButton>
           </motion.div>
         </motion.div>

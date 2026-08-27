@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from '../components/ui'
 import { useHaalm } from '../store/haalm'
+import { useT } from '../i18n'
 
 export function Profile() {
   const navigate = useNavigate()
@@ -13,40 +14,44 @@ export function Profile() {
   const resetAll = useHaalm((s) => s.resetAll)
   const pets = useHaalm((s) => s.pets)
   const [confirmReset, setConfirmReset] = useState(false)
+  const language = useHaalm((s) => s.language)
+  const setLanguage = useHaalm((s) => s.setLanguage)
+  const { t } = useT()
 
   return (
     <div className="page px">
       <div style={{ paddingTop: 28 }}>
-        <h1 style={{ fontSize: 26 }}>Profile</h1>
+        <h1 style={{ fontSize: 26 }}>{t('prof.title')}</h1>
         <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
-          Parent settings & app info
+          {t('prof.sub')}
         </p>
       </div>
 
       <div style={{ marginTop: 20 }}>
-        <Row icon="profile" label="My Account" sub="Local demo profile" />
+        <Row icon="profile" label={t('prof.account')} sub={t('prof.accountsub')} />
         <ToggleRow
           icon="sparkle"
-          label="Notifications"
+          label={t('prof.notifications')}
           value={notificationsOn}
           onChange={(v) => setSetting('notificationsOn', v)}
         />
-        <ToggleRow icon="play" label="Sound" value={soundOn} onChange={(v) => setSetting('soundOn', v)} />
+        <ToggleRow icon="play" label={t('prof.sound')} value={soundOn} onChange={(v) => setSetting('soundOn', v)} />
         <ToggleRow
           icon="lock"
-          label="Child-Safe Mode"
+          label={t('prof.childsafe')}
           value={childSafe}
           onChange={(v) => setSetting('childSafe', v)}
         />
-        <Row icon="drop" label="Privacy & Data" sub="Everything stays on this device" />
+        <LanguageRow label={t('prof.language')} language={language} setLanguage={setLanguage} />
+        <Row icon="drop" label={t('prof.privacy')} sub={t('prof.privacysub')} />
         <Row
           icon="qr"
-          label="Restore Haalms"
-          sub={`${Object.keys(pets).length} friends on this device`}
+          label={t('prof.restore')}
+          sub={t('prof.restoresub', { n: Object.keys(pets).length })}
           onClick={() => navigate('/scan')}
         />
-        <Row icon="heart" label="Help & Support" sub="hello@denhaalm.com" />
-        <Row icon="home" label="About Haalm" sub="haalm v0 · made with love in the Alm" />
+        <Row icon="heart" label={t('prof.help')} sub="hello@denhaalm.com" />
+        <Row icon="home" label={t('prof.about')} sub={t('prof.aboutsub')} />
       </div>
 
       <div style={{ marginTop: 28, textAlign: 'center' }}>
@@ -66,7 +71,7 @@ export function Profile() {
                 padding: '10px 20px',
               }}
             >
-              Yes, start over
+              {t('prof.resetyes')}
             </button>
             <button
               onClick={() => setConfirmReset(false)}
@@ -79,7 +84,7 @@ export function Profile() {
                 background: 'var(--warm-white)',
               }}
             >
-              Keep my Haalm
+              {t('prof.resetno')}
             </button>
           </div>
         ) : (
@@ -87,7 +92,7 @@ export function Profile() {
             onClick={() => setConfirmReset(true)}
             style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'underline' }}
           >
-            Reset demo data
+            {t('prof.reset')}
           </button>
         )}
       </div>
@@ -140,6 +145,61 @@ function Row({
         </svg>
       )}
     </motion.button>
+  )
+}
+
+function LanguageRow({
+  label,
+  language,
+  setLanguage,
+}: {
+  label: string
+  language: 'de' | 'en'
+  setLanguage: (l: 'de' | 'en') => void
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+        padding: '15px 2px',
+        borderBottom: '1px solid var(--line)',
+      }}
+    >
+      <Icon name="map" size={18} style={{ opacity: 0.7 }} />
+      <span style={{ flex: 1, fontSize: 15 }}>{label}</span>
+      <div
+        style={{
+          display: 'flex',
+          background: 'rgba(31,31,31,0.06)',
+          borderRadius: 999,
+          padding: 3,
+          gap: 2,
+        }}
+      >
+        {(['de', 'en'] as const).map((l) => (
+          <button
+            key={l}
+            onClick={() => setLanguage(l)}
+            style={{
+              fontSize: 12,
+              fontWeight: language === l ? 500 : 400,
+              padding: '5px 14px',
+              borderRadius: 999,
+              background: language === l ? 'var(--warm-white)' : 'transparent',
+              color: language === l ? 'var(--graphite)' : 'var(--muted)',
+              boxShadow: language === l ? '0 1px 4px rgba(31,31,31,0.1)' : undefined,
+              transition: 'background 0.2s',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {l === 'de' ? 'Deutsch' : 'English'}
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 

@@ -6,6 +6,7 @@ import { PetSprite } from '../components/PetSprite'
 import { ParticleBurst, type ParticleKind } from '../components/Particles'
 import { characterById, type CharacterId } from '../data/characters'
 import { stageOf, useHaalm } from '../store/haalm'
+import { useT } from '../i18n'
 
 type CareAnim = 'feed' | 'clean' | 'sleep' | 'cuddle' | null
 
@@ -31,6 +32,7 @@ export function Care() {
   const [note, setNote] = useState('')
   const [floaters, setFloaters] = useState<Floater[]>([])
   const seq = useRef(0)
+  const { t, loc } = useT()
 
   if (!pet) return null
   const char = characterById(petId)
@@ -61,8 +63,8 @@ export function Care() {
   }
 
   const onFeed = () => {
-    if (pet.sleeping) return setNoteBriefly(`${char.name} is fast asleep…`)
-    if (treats < 1) return setNoteBriefly('No treats left — play a game to earn more!')
+    if (pet.sleeping) return setNoteBriefly(t('care.asleep', { name: char.name }))
+    if (treats < 1) return setNoteBriefly(t('care.notreats'))
     if (feed(petId)) {
       seq.current += 1
       setSnackFly(seq.current)
@@ -70,7 +72,7 @@ export function Care() {
         fireBurst('hearts')
         addFloater('+16', 'var(--berry)')
       }, 620)
-      play('feed', `${char.name} munches happily`)
+      play('feed', t('care.munch', { name: char.name }))
     }
   }
   const onClean = () => {
@@ -78,24 +80,24 @@ export function Care() {
     fireBurst('bubbles')
     setTimeout(() => fireBurst('sparkles'), 900)
     addFloater('+28', 'var(--sky)')
-    play('clean', 'Splish splash · all clean', 1800)
+    play('clean', t('care.splish'), 1800)
   }
   const onSleep = () => {
     toggleSleep(petId)
     if (!pet.sleeping) {
       fireBurst('stars')
-      play('sleep', `Shh… ${char.name} is dozing off`, 1800)
+      play('sleep', t('care.dozing', { name: char.name }), 1800)
     } else {
       fireBurst('sparkles')
-      setNoteBriefly(`${char.name} woke up refreshed!`)
+      setNoteBriefly(t('care.woke', { name: char.name }))
     }
   }
   const onCuddle = () => {
-    if (pet.sleeping) return setNoteBriefly(`${char.name} is fast asleep…`)
+    if (pet.sleeping) return setNoteBriefly(t('care.asleep', { name: char.name }))
     cuddle(petId)
     fireBurst('hearts')
     addFloater('+10', 'var(--meadow-dark)')
-    play('cuddle', `${char.name} loves you`)
+    play('cuddle', t('care.loves', { name: char.name }))
   }
 
   const petMotion =
@@ -136,13 +138,13 @@ export function Care() {
             padding: '8px 14px',
           }}
         >
-          <Icon name="apple" size={14} /> {treats} treats
+          <Icon name="apple" size={14} /> {t('care.treats', { n: treats })}
         </span>
       </div>
 
-      <h1 style={{ fontSize: 26, textAlign: 'center', marginTop: 12 }}>How can we take care?</h1>
+      <h1 style={{ fontSize: 26, textAlign: 'center', marginTop: 12 }}>{t('care.title')}</h1>
       <p className="muted" style={{ fontSize: 13, textAlign: 'center', marginTop: 6 }}>
-        {char.name} · {stage === 'baby' ? char.babySpecies : char.species}
+        {char.name} · {loc(stage === 'baby' ? char.babySpecies : char.species)}
       </p>
 
       {/* character on its little meadow patch */}
@@ -229,16 +231,16 @@ export function Care() {
           zIndex: 2,
         }}
       >
-        <CareAction label="Feed" sub={`${treats} treats left`} icon="apple" bg="rgba(232,162,175,0.34)" onClick={onFeed} />
-        <CareAction label="Clean" sub="Bubble bath" icon="drop" bg="rgba(169,203,232,0.34)" onClick={onClean} />
+        <CareAction label={t('care.feed')} sub={t('care.feedsub', { n: treats })} icon="apple" bg="rgba(232,162,175,0.34)" onClick={onFeed} />
+        <CareAction label={t('care.cleanaction')} sub={t('care.cleansub')} icon="drop" bg="rgba(169,203,232,0.34)" onClick={onClean} />
         <CareAction
-          label={pet.sleeping ? 'Wake up' : 'Sleep'}
-          sub={pet.sleeping ? 'Rise & shine' : 'Recover energy'}
+          label={pet.sleeping ? t('care.wake') : t('care.sleep')}
+          sub={pet.sleeping ? t('care.wakesub') : t('care.sleepsub')}
           icon="moon"
           bg="rgba(205,185,219,0.34)"
           onClick={onSleep}
         />
-        <CareAction label="Cuddle" sub="Show some love" icon="heart" bg="rgba(232,162,175,0.2)" onClick={onCuddle} />
+        <CareAction label={t('care.cuddle')} sub={t('care.cuddlesub')} icon="heart" bg="rgba(232,162,175,0.2)" onClick={onCuddle} />
       </div>
     </div>
   )

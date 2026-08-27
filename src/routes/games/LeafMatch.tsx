@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { GameShell, useGameShell } from './GameShell'
 import { CHARACTERS, portraitSrc, type CharacterId } from '../../data/characters'
 import { Icon } from '../../components/ui'
+import { useT } from '../../i18n'
 
 interface Card {
   key: number
@@ -26,12 +27,13 @@ export function LeafMatch() {
   const [score, setScore] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [round, setRound] = useState(0)
+  const { t } = useT()
 
   return (
     <GameShell
       gameId="leaf-match"
       title="Leaf Match"
-      howTo="Flip the leaves and find each pair of Haalm friends. Fewer tries means a better score!"
+      howTo={t('game.leaf.howto')}
       score={score}
       playing={playing}
       onStart={() => {
@@ -59,6 +61,7 @@ export function LeafMatch() {
 
 function Board({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => void }) {
   const { finish } = useGameShell()
+  const { t: t2 } = useT()
   const [deck, setDeck] = useState<Card[]>(buildDeck)
   const [open, setOpen] = useState<number[]>([])
   const [moves, setMoves] = useState(0)
@@ -124,7 +127,7 @@ function Board({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
       }}
     >
       <span className="muted" style={{ fontSize: 12, textAlign: 'center', marginBottom: 12 }}>
-        {matchedCount / 2} / {PAIRS} pairs · {moves} tries
+        {t2('game.pairs', { a: matchedCount / 2, b: PAIRS, m: moves })}
       </span>
       <div
         style={{

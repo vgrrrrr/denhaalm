@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { GameShell, useGameShell } from './GameShell'
 import { useActivePet } from '../../store/haalm'
+import { useT } from '../../i18n'
 import { portraitSrc } from '../../data/characters'
 
 /**
@@ -12,12 +13,13 @@ export function CloudHop() {
   const [score, setScore] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [round, setRound] = useState(0)
+  const { t } = useT()
 
   return (
     <GameShell
       gameId="cloud-hop"
       title="Cloud Hop"
-      howTo="Tap when the little sun is inside the soft white zone to hop up to the next cloud. The zone shrinks as you climb — how high can you get?"
+      howTo={t('game.cloud.howto')}
       score={score}
       playing={playing}
       onStart={() => {
@@ -44,6 +46,7 @@ export function CloudHop() {
 
 function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => void }) {
   const { finish } = useGameShell()
+  const { t: t2 } = useT()
   const pet = useActivePet()
   const [hops, setHops] = useState(0)
   const [misses, setMisses] = useState(0)
@@ -161,7 +164,7 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
         <div style={{ opacity: 0.35, marginTop: 6 }}>
           <Cloud size={54} />
         </div>
-        <span style={{ fontSize: 13, fontWeight: 500, marginTop: 10 }}>{hops} clouds high</span>
+        <span style={{ fontSize: 13, fontWeight: 500, marginTop: 10 }}>{t2('game.cloudshigh', { n: hops })}</span>
       </div>
 
       {/* timing bar */}
@@ -203,7 +206,7 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
           />
         </div>
         <span className="muted" style={{ fontSize: 11, display: 'block', textAlign: 'center', marginTop: 8 }}>
-          tap to hop
+          {t2('game.taptohop')}
         </span>
       </div>
     </div>

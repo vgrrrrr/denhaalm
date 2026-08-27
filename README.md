@@ -34,6 +34,12 @@ demo code such as `HAALM-GIGI`, `HAALM-BENI`, … to unlock an animal.
 - **Herd** — collection screen for all eight canonical animals plus locked slots
 - **Profile** — parent settings (sound, child-safe mode, …) and demo reset
 
+## Language
+
+The app ships in **German by default**; English can be selected under Profil →
+Sprache. All UI copy, species names, traits, snacks, place names and minigame
+texts are localized via a small dictionary in `src/i18n.ts`.
+
 ## Living world & effects
 
 - Time-of-day scenes (dawn / day / evening / night) with drifting clouds, birds and
@@ -42,8 +48,9 @@ demo code such as `HAALM-GIGI`, `HAALM-BENI`, … to unlock an animal.
 - Pets are alive: breathing, contact shadow, spontaneous idle behaviors (hopping,
   looking around, wiggling, strolling with direction flip), need-emote thought bubbles,
   and tap reactions with particle bursts
-- Every character sits on a grass meadow patch (also visually grounds assets whose
-  feet were cropped in the source art)
+- Every character sits on a grass meadow patch with a contact shadow; Gigi's source
+  art was missing its feet entirely (they were never rendered, not a matting issue) —
+  plush-style feet were synthesized programmatically from sampled body colors
 - Care feedback: flying snack, rising bubbles, sparkles, stat floaters
 - Level-up toasts and a full baby-to-grown evolution ceremony
 - The Alm map shows the active pet at its current location; clouds drift over the map

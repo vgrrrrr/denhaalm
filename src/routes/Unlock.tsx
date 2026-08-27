@@ -5,6 +5,7 @@ import { SoftButton, softSpring } from '../components/ui'
 import { ParticleBurst } from '../components/Particles'
 import { characterById, spriteSrc, type CharacterId } from '../data/characters'
 import { useHaalm } from '../store/haalm'
+import { useT } from '../i18n'
 
 export function Unlock() {
   const { id } = useParams()
@@ -12,6 +13,7 @@ export function Unlock() {
   const unlockPet = useHaalm((s) => s.unlockPet)
   const char = characterById(id ?? 'gigi')
   const [ctaVisible, setCtaVisible] = useState(false)
+  const { t, loc } = useT()
 
   useEffect(() => {
     const t = setTimeout(() => setCtaVisible(true), 900)
@@ -63,7 +65,7 @@ export function Unlock() {
         transition={{ delay: 0.15, duration: 0.3 }}
         style={{ fontSize: 32, lineHeight: 1.05 }}
       >
-        yay!
+        {t('unlock.yay')}
       </motion.h1>
       <motion.p
         initial={{ opacity: 0 }}
@@ -71,7 +73,7 @@ export function Unlock() {
         transition={{ delay: 0.3 }}
         style={{ fontSize: 16 }}
       >
-        You unlocked {char.name}!
+        {t('unlock.you', { name: char.name })}
       </motion.p>
       <motion.span
         initial={{ opacity: 0 }}
@@ -80,7 +82,7 @@ export function Unlock() {
         className="muted"
         style={{ fontSize: 13 }}
       >
-        {char.babySpecies}
+        {loc(char.babySpecies)}
       </motion.span>
 
       <div style={{ position: 'relative', marginTop: 18, marginBottom: 26 }}>
@@ -119,7 +121,7 @@ export function Unlock() {
         transition={{ duration: 0.3 }}
         style={{ width: '100%', maxWidth: 320 }}
       >
-        <SoftButton onClick={welcome}>Welcome home</SoftButton>
+        <SoftButton onClick={welcome}>{t('unlock.home')}</SoftButton>
       </motion.div>
     </motion.div>
   )

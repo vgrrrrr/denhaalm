@@ -4,18 +4,20 @@ import { Icon, SoftButton, softEase } from '../components/ui'
 import { ALM_LOCATIONS, locationById, type AlmLocation } from '../data/locations'
 import { characterById } from '../data/characters'
 import { useActivePet, useHaalm } from '../store/haalm'
+import { useT } from '../i18n'
 
 export function Alm() {
   const [selected, setSelected] = useState<AlmLocation | null>(null)
   const [toast, setToast] = useState('')
   const pet = useActivePet()
   const visit = useHaalm((s) => s.visit)
+  const { t, loc: loc2 } = useT()
 
-  const onVisit = (loc: AlmLocation) => {
+  const onVisit = (target: AlmLocation) => {
     if (pet) {
-      visit(pet.id, loc.id, loc.boost)
+      visit(pet.id, target.id, target.boost)
       const char = characterById(pet.id)
-      setToast(`${char.name} is off to ${loc.name}!`)
+      setToast(t('alm.offto', { name: char.name, place: loc2(target.name) }))
       setTimeout(() => setToast(''), 2600)
     }
     setSelected(null)
@@ -33,9 +35,9 @@ export function Alm() {
           background: 'linear-gradient(to bottom, var(--cream) 55%, rgba(255,244,236,0))',
         }}
       >
-        <h1 style={{ fontSize: 26 }}>The Haalm</h1>
+        <h1 style={{ fontSize: 26 }}>{t('alm.title')}</h1>
         <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
-          Explore and discover fun places.
+          {t('alm.sub')}
         </p>
       </div>
 
@@ -140,7 +142,7 @@ export function Alm() {
                   }}
                 />
               )}
-              {loc.name}
+              {loc2(loc.name)}
             </motion.button>
           )
         })}
@@ -217,16 +219,16 @@ export function Alm() {
                   margin: '0 auto 16px',
                 }}
               />
-              <h2 style={{ fontSize: 18 }}>{selected.name}</h2>
+              <h2 style={{ fontSize: 18 }}>{loc2(selected.name)}</h2>
               <p className="muted" style={{ fontSize: 14, lineHeight: 1.45, margin: '8px 0 6px' }}>
-                {selected.description}
+                {loc2(selected.description)}
               </p>
               <p style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 18 }}>
                 <Icon name="sparkle" size={13} />
-                A visit lifts {selected.boost === 'hunger' ? 'appetite' : selected.boost}.
+                {t(`alm.lifts.${selected.boost}`)}
               </p>
               <SoftButton onClick={() => onVisit(selected)}>
-                Visit{pet ? ` with ${characterById(pet.id).name}` : ''}
+                {pet ? t('alm.visitwith', { name: characterById(pet.id).name }) : t('alm.visit')}
               </SoftButton>
             </motion.div>
           </>

@@ -1,16 +1,18 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { Icon } from './ui'
+import { useT, type StringKey } from '../i18n'
 
-const TABS = [
-  { to: '/home', label: 'Home', icon: 'home' },
-  { to: '/play', label: 'Play', icon: 'play' },
-  { to: '/alm', label: 'Alm', icon: 'map' },
-  { to: '/herd', label: 'Herde', icon: 'herd' },
-  { to: '/profile', label: 'Profil', icon: 'profile' },
+const TABS: { to: string; labelKey: StringKey; icon: string }[] = [
+  { to: '/home', labelKey: 'nav.home', icon: 'home' },
+  { to: '/play', labelKey: 'nav.play', icon: 'play' },
+  { to: '/alm', labelKey: 'nav.alm', icon: 'map' },
+  { to: '/herd', labelKey: 'nav.herd', icon: 'herd' },
+  { to: '/profile', labelKey: 'nav.profile', icon: 'profile' },
 ]
 
 export function BottomNav() {
   const { pathname } = useLocation()
+  const { t } = useT()
   return (
     <nav
       style={{
@@ -61,7 +63,7 @@ export function BottomNav() {
               )}
             </div>
             <span style={{ fontSize: 11, fontWeight: active ? 500 : 400, marginTop: 2 }}>
-              {tab.label}
+              {t(tab.labelKey)}
             </span>
           </NavLink>
         )

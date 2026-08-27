@@ -6,13 +6,14 @@ import { WorldScene, type DayPhase } from '../components/WorldScene'
 import { PetSprite } from '../components/PetSprite'
 import { characterById } from '../data/characters'
 import { moodOf, stageOf, useActivePet, useHaalm, levelFromXp } from '../store/haalm'
+import { useT } from '../i18n'
 
-const greeting = () => {
+const greetingKey = () => {
   const h = new Date().getHours()
-  if (h < 5) return 'Good night'
-  if (h < 11) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
+  if (h < 5) return 'greet.night' as const
+  if (h < 11) return 'greet.morning' as const
+  if (h < 18) return 'greet.afternoon' as const
+  return 'greet.evening' as const
 }
 
 /** icon hint for the pet's most urgent need */
@@ -35,6 +36,7 @@ export function Home() {
   const claimDailyBonus = useHaalm((s) => s.claimDailyBonus)
   const streak = useHaalm((s) => s.streak)
   const [bonus, setBonus] = useState(0)
+  const { t, loc } = useT()
 
   useEffect(() => {
     const b = claimDailyBonus()
@@ -91,7 +93,7 @@ export function Home() {
           className="muted"
           style={{ fontSize: 15 }}
         >
-          {greeting()}
+          {t(greetingKey())}
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 4 }}
@@ -109,7 +111,7 @@ export function Home() {
           className="muted"
           style={{ fontSize: 12 }}
         >
-          {stage === 'baby' ? char.babySpecies : char.species} · Lv. {level} · {moodOf(pet)}
+          {loc(stage === 'baby' ? char.babySpecies : char.species)} · Lv. {level} · {t(moodOf(pet))}
         </motion.span>
       </div>
 
@@ -137,7 +139,7 @@ export function Home() {
             }}
           >
             <Icon name="apple" size={14} />
-            +{bonus} treats · day {streak}
+            {t('home.bonus', { n: bonus, d: streak })}
           </motion.div>
         )}
       </AnimatePresence>
@@ -175,7 +177,7 @@ export function Home() {
           <Stat icon="moon" value={pet.energy} />
           <Stat icon="drop" value={pet.cleanliness} />
         </motion.button>
-        <SoftButton onClick={() => navigate(`/care/${pet.id}`)}>Care for {char.name}</SoftButton>
+        <SoftButton onClick={() => navigate(`/care/${pet.id}`)}>{t('home.care', { name: char.name })}</SoftButton>
       </div>
     </div>
   )

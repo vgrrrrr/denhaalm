@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { BackButton, Icon, SoftButton, softEase } from '../components/ui'
 import { CHARACTERS, characterByCode } from '../data/characters'
 import { useHaalm } from '../store/haalm'
+import { useT } from '../i18n'
 
 export function Scan() {
   const navigate = useNavigate()
@@ -12,6 +13,7 @@ export function Scan() {
   const [manual, setManual] = useState(false)
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
+  const { t } = useT()
 
   const nextLocked = CHARACTERS.find((c) => !pets[c.id]) ?? CHARACTERS[0]
 
@@ -24,7 +26,7 @@ export function Scan() {
   const submitCode = () => {
     const char = characterByCode(code)
     if (!char) {
-      setError('Hmm, we don’t know that code. It looks like HAALM-GIGI.')
+      setError(t('scan.badcode'))
       return
     }
     navigate(`/unlock/${char.id}`)
@@ -37,9 +39,9 @@ export function Scan() {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 20 }}>
-        <h1 style={{ fontSize: 26 }}>Scan your Haalm</h1>
+        <h1 style={{ fontSize: 26 }}>{t('scan.title')}</h1>
         <p className="muted" style={{ fontSize: 15, lineHeight: 1.45, marginTop: 8, maxWidth: 260, marginInline: 'auto' }}>
-          Find the QR code on your Haalm and bring your new friend home.
+          {t('scan.copy')}
         </p>
       </div>
 
@@ -135,7 +137,7 @@ export function Scan() {
               >
                 <Icon name="sparkle" size={30} />
               </motion.div>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>Haalm found!</span>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>{t('scan.found')}</span>
             </motion.div>
           )}
         </motion.button>
@@ -180,15 +182,15 @@ export function Scan() {
             {error && (
               <span style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>{error}</span>
             )}
-            <SoftButton onClick={submitCode}>Unlock</SoftButton>
+            <SoftButton onClick={submitCode}>{t('scan.unlock')}</SoftButton>
           </motion.div>
         ) : (
           <>
             <SoftButton onClick={simulateScan} disabled={scanning}>
-              {scanning ? 'Scanning…' : 'Tap to scan (demo)'}
+              {scanning ? t('scan.scanning') : t('scan.tap')}
             </SoftButton>
             <SoftButton variant="ghost" onClick={() => setManual(true)}>
-              Enter code manually
+              {t('scan.manual')}
             </SoftButton>
           </>
         )}

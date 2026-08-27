@@ -12,18 +12,20 @@ import {
   useHaalm,
   GROWN_LEVEL,
 } from '../store/haalm'
+import { useT } from '../i18n'
 
 export function PetDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const pet = useHaalm((s) => s.pets[(id ?? '') as CharacterId])
   const setActivePet = useHaalm((s) => s.setActivePet)
+  const { t, loc } = useT()
 
   if (!pet) {
     return (
       <div className="page px" style={{ paddingTop: 20 }}>
         <BackButton to="/herd" />
-        <p style={{ marginTop: 24 }}>This friend hasn’t moved in yet.</p>
+        <p style={{ marginTop: 24 }}>{t('pet.notyet')}</p>
       </div>
     )
   }
@@ -51,14 +53,14 @@ export function PetDetail() {
             padding: '8px 14px',
           }}
         >
-          Bring home
+          {t('pet.bringhome')}
         </button>
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 10 }}>
         <h1 style={{ fontSize: 26 }}>{char.name}</h1>
         <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
-          {stage === 'baby' ? char.babySpecies : char.species} · Lv. {level}
+          {loc(stage === 'baby' ? char.babySpecies : char.species)} · Lv. {level}
         </p>
       </div>
 
@@ -76,8 +78,8 @@ export function PetDetail() {
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>
           <span>
             {stage === 'baby'
-              ? `Grows up at Lv. ${GROWN_LEVEL}`
-              : 'All grown up'}
+              ? t('pet.growsat', { n: GROWN_LEVEL })
+              : t('pet.grown')}
           </span>
           <span>
             {into} / {needed} xp
@@ -96,24 +98,24 @@ export function PetDetail() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <StatusBar label="Hunger" value={pet.hunger} color="var(--berry)" />
-        <StatusBar label="Happiness" value={pet.happiness} color="var(--meadow)" />
-        <StatusBar label="Energy" value={pet.energy} color="var(--sky)" />
-        <StatusBar label="Cleanliness" value={pet.cleanliness} color="var(--lavender)" />
+        <StatusBar label={t('pet.hunger')} value={pet.hunger} color="var(--berry)" />
+        <StatusBar label={t('pet.happiness')} value={pet.happiness} color="var(--meadow)" />
+        <StatusBar label={t('pet.energy')} value={pet.energy} color="var(--sky)" />
+        <StatusBar label={t('pet.clean')} value={pet.cleanliness} color="var(--lavender)" />
       </div>
 
       <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <MetaRow icon={char.snackIcon} label="Favorite snack" value={char.favoriteSnack} />
-        <MetaRow icon="sparkle" label="Personality" value={char.trait} />
-        <MetaRow icon="map" label="Currently at" value={location?.name ?? char.home} />
-        <MetaRow icon="heart" label="Together" value={`${daysTogether(pet)} days`} />
-        <MetaRow icon="moon" label="Mood" value={moodOf(pet)} />
+        <MetaRow icon={char.snackIcon} label={t('pet.snack')} value={loc(char.favoriteSnack)} />
+        <MetaRow icon="sparkle" label={t('pet.personality')} value={loc(char.trait)} />
+        <MetaRow icon="map" label={t('pet.location')} value={location ? loc(location.name) : '—'} />
+        <MetaRow icon="heart" label={t('pet.together')} value={t('pet.days', { n: daysTogether(pet) })} />
+        <MetaRow icon="moon" label={t('pet.mood')} value={t(moodOf(pet))} />
       </div>
 
       <div style={{ marginTop: 28, display: 'flex', gap: 10 }}>
-        <SoftButton onClick={() => navigate(`/care/${pet.id}`)}>Care</SoftButton>
+        <SoftButton onClick={() => navigate(`/care/${pet.id}`)}>{t('pet.care')}</SoftButton>
         <SoftButton variant="cream" onClick={() => navigate('/play')}>
-          Play
+          {t('pet.play')}
         </SoftButton>
       </div>
     </div>

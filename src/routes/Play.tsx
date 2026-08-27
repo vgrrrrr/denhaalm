@@ -3,21 +3,23 @@ import { useNavigate } from 'react-router-dom'
 import { Icon } from '../components/ui'
 import { GAMES } from '../data/games'
 import { useHaalm } from '../store/haalm'
+import { useT } from '../i18n'
 
 export function Play() {
   const navigate = useNavigate()
   const records = useHaalm((s) => s.games)
   const treats = useHaalm((s) => s.treats)
   const hearts = useHaalm((s) => s.hearts)
+  const { t } = useT()
 
   return (
     <div className="page px">
       <div style={{ paddingTop: 28, textAlign: 'center' }}>
-        <h1 style={{ fontSize: 26 }}>Play together!</h1>
+        <h1 style={{ fontSize: 26 }}>{t('play.title')}</h1>
         <p className="muted" style={{ fontSize: 14, marginTop: 8, lineHeight: 1.45 }}>
-          Earn hearts & treats
+          {t('play.sub1')}
           <br />
-          by playing games.
+          {t('play.sub2')}
         </p>
         <div
           style={{
@@ -75,7 +77,7 @@ export function Play() {
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 500 }}>{game.name}</div>
                   <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>
-                    {game.tagline}
+                    {t(game.tagKey)}
                   </div>
                 </div>
                 <span
@@ -87,7 +89,7 @@ export function Play() {
                     color: 'var(--muted)',
                   }}
                 >
-                  {record ? `Best ${record.best}` : 'New!'}
+                  {record ? t('play.best', { n: record.best }) : t('play.new')}
                 </span>
               </div>
             </motion.button>

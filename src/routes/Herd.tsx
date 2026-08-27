@@ -3,19 +3,21 @@ import { useNavigate } from 'react-router-dom'
 import { Icon } from '../components/ui'
 import { CHARACTERS, portraitSrc, ROSTER_SIZE } from '../data/characters'
 import { levelFromXp, useHaalm } from '../store/haalm'
+import { useT } from '../i18n'
 
 export function Herd() {
   const navigate = useNavigate()
   const pets = useHaalm((s) => s.pets)
   const unlockedCount = Object.keys(pets).length
+  const { t, loc } = useT()
   const lockedPlaceholders = Math.max(0, 9 - CHARACTERS.length) + 4
 
   return (
     <div className="page px">
       <div style={{ paddingTop: 28 }}>
-        <h1 style={{ fontSize: 26 }}>My Herd</h1>
+        <h1 style={{ fontSize: 26 }}>{t('herd.title')}</h1>
         <p className="muted" style={{ fontSize: 13, marginTop: 6 }}>
-          {unlockedCount} / {ROSTER_SIZE} unlocked
+          {t('herd.unlocked', { a: unlockedCount, b: ROSTER_SIZE })}
         </p>
       </div>
 
@@ -68,14 +70,14 @@ export function Herd() {
                 <>
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{char.name}</span>
                   <span className="muted" style={{ fontSize: 10 }}>
-                    {char.species} · Lv. {levelFromXp(pet!.xp).level}
+                    {loc(char.species)} · Lv. {levelFromXp(pet!.xp).level}
                   </span>
                 </>
               ) : (
                 <>
                   <span style={{ fontSize: 13, fontWeight: 500, opacity: 0.6 }}>{char.name}</span>
                   <span className="muted" style={{ fontSize: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Icon name="lock" size={10} faded /> Scan to unlock
+                    <Icon name="lock" size={10} faded /> {t('herd.scantounlock')}
                   </span>
                 </>
               )}
@@ -101,7 +103,7 @@ export function Herd() {
             }}
           >
             <Icon name="lock" size={20} />
-            <span style={{ fontSize: 10 }}>Coming soon</span>
+            <span style={{ fontSize: 10 }}>{t('herd.soon')}</span>
           </div>
         ))}
       </div>

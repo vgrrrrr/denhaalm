@@ -5,6 +5,7 @@ import { BackButton, Icon, SoftButton, softSpring } from '../../components/ui'
 import { ParticleBurst } from '../../components/Particles'
 import { characterById, portraitSrc } from '../../data/characters'
 import { useActivePet, useHaalm, type GameReward } from '../../store/haalm'
+import { useT } from '../../i18n'
 
 export type GamePhase = 'ready' | 'playing' | 'done'
 
@@ -34,6 +35,7 @@ export function GameShell({
   const finishGame = useHaalm((s) => s.finishGame)
   const [reward, setReward] = useState<GameReward | null>(null)
   const [phase, setPhase] = useState<GamePhase>('ready')
+  const { t } = useT()
 
   const start = () => {
     setReward(null)
@@ -77,7 +79,7 @@ export function GameShell({
                 <p className="muted" style={{ fontSize: 14, lineHeight: 1.45, textAlign: 'center', marginBottom: 18 }}>
                   {howTo}
                 </p>
-                <SoftButton onClick={start}>Let’s play</SoftButton>
+                <SoftButton onClick={start}>{t('game.letsplay')}</SoftButton>
               </Sheet>
             )}
 
@@ -95,12 +97,12 @@ export function GameShell({
                   />
                 )}
                 <p style={{ textAlign: 'center', fontSize: 17, fontWeight: 500, position: 'relative' }}>
-                  {reward.newBest ? 'New best!' : 'Well played!'}
+                  {reward.newBest ? t('game.newbest') : t('game.wellplayed')}
                   {reward.newBest && <ParticleBurst kind="sparkles" trigger={score + 1} count={10} />}
                 </p>
                 <p className="muted" style={{ textAlign: 'center', fontSize: 13, marginTop: 4 }}>
-                  Score {score}
-                  {pet ? ` · ${characterById(pet.id).name} had fun` : ''}
+                  {t('game.score', { n: score })}
+                  {pet ? ` · ${t('game.hadfun', { name: characterById(pet.id).name })}` : ''}
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 14, margin: '16px 0 20px' }}>
                   <RewardChip icon="apple" label={`+${reward.treats}`} />
@@ -108,9 +110,9 @@ export function GameShell({
                   <RewardChip icon="sparkle" label={`+${reward.xp} xp`} />
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <SoftButton onClick={start}>Play again</SoftButton>
+                  <SoftButton onClick={start}>{t('game.again')}</SoftButton>
                   <SoftButton variant="cream" onClick={() => navigate('/play')}>
-                    Done
+                    {t('game.done')}
                   </SoftButton>
                 </div>
               </Sheet>

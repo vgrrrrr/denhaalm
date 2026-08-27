@@ -41,6 +41,7 @@ interface HaalmStore {
   soundOn: boolean
   childSafe: boolean
   notificationsOn: boolean
+  language: 'de' | 'en'
 
   completeOnboarding: () => void
   unlockPet: (id: CharacterId) => void
@@ -54,6 +55,7 @@ interface HaalmStore {
   claimDailyBonus: () => number
   markCelebrated: (id: CharacterId, level: number) => void
   setSetting: (key: 'soundOn' | 'childSafe' | 'notificationsOn', value: boolean) => void
+  setLanguage: (lang: 'de' | 'en') => void
   setActivePet: (id: CharacterId) => void
   resetAll: () => void
 }
@@ -85,14 +87,23 @@ export const GROWN_LEVEL = 8
 export const stageOf = (pet: PetState): 'baby' | 'grown' =>
   levelFromXp(pet.xp).level >= GROWN_LEVEL ? 'grown' : 'baby'
 
-export const moodOf = (pet: PetState): string => {
-  if (pet.sleeping) return 'Sleeping'
-  if (pet.hunger < 30) return 'Hungry'
-  if (pet.energy < 30) return 'Sleepy'
-  if (pet.cleanliness < 30) return 'Needs a bath'
-  if (pet.happiness < 35) return 'A bit lonely'
-  if (pet.happiness > 75 && pet.hunger > 60) return 'Very happy'
-  return 'Content'
+export type MoodKey =
+  | 'mood.sleeping'
+  | 'mood.hungry'
+  | 'mood.sleepy'
+  | 'mood.bath'
+  | 'mood.lonely'
+  | 'mood.veryhappy'
+  | 'mood.content'
+
+export const moodOf = (pet: PetState): MoodKey => {
+  if (pet.sleeping) return 'mood.sleeping'
+  if (pet.hunger < 30) return 'mood.hungry'
+  if (pet.energy < 30) return 'mood.sleepy'
+  if (pet.cleanliness < 30) return 'mood.bath'
+  if (pet.happiness < 35) return 'mood.lonely'
+  if (pet.happiness > 75 && pet.hunger > 60) return 'mood.veryhappy'
+  return 'mood.content'
 }
 
 export const daysTogether = (pet: PetState) =>
@@ -162,6 +173,7 @@ export const useHaalm = create<HaalmStore>()(
       soundOn: true,
       childSafe: true,
       notificationsOn: false,
+      language: 'de',
 
       completeOnboarding: () => set({ onboarded: true }),
 
@@ -320,6 +332,8 @@ export const useHaalm = create<HaalmStore>()(
         })),
 
       setSetting: (key, value) => set({ [key]: value }),
+
+      setLanguage: (lang) => set({ language: lang }),
 
       setActivePet: (id) => set({ activePet: id }),
 

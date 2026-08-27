@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { GameShell, useGameShell } from './GameShell'
 import { useActivePet } from '../../store/haalm'
+import { useT } from '../../i18n'
 import { portraitSrc } from '../../data/characters'
 
 interface Bush {
@@ -11,12 +12,13 @@ interface Bush {
 export function HillDash() {
   const [score, setScore] = useState(0)
   const [playing, setPlaying] = useState(false)
+  const { t } = useT()
 
   return (
     <GameShell
       gameId="hill-dash"
       title="Hill Dash"
-      howTo="Tap anywhere to hop over the bushes. Every bush you clear counts. Three stumbles and the run is over!"
+      howTo={t('game.hill.howto')}
       score={score}
       playing={playing}
       onStart={() => {
@@ -46,6 +48,7 @@ const JUMP_MS = 620
 
 function Track({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => void }) {
   const { finish } = useGameShell()
+  const { t: t2 } = useT()
   const pet = useActivePet()
   const [bushes, setBushes] = useState<Bush[]>([])
   const [jumping, setJumping] = useState(false)
@@ -222,7 +225,7 @@ function Track({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
         className="muted"
         style={{ position: 'absolute', bottom: 14, left: 0, right: 0, textAlign: 'center', fontSize: 11 }}
       >
-        tap to hop
+        {t2('game.taptohop')}
       </span>
     </div>
   )
