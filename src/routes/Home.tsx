@@ -160,16 +160,13 @@ export function Home() {
         <motion.button
           onClick={() => navigate(`/pet/${pet.id}`)}
           whileTap={{ scale: 0.985 }}
+          className="glass"
           style={{
             display: 'flex',
             justifyContent: 'space-around',
             alignItems: 'center',
-            background: 'rgba(255,251,247,0.86)',
-            backdropFilter: 'blur(6px)',
             borderRadius: 999,
-            border: '1px solid var(--line)',
             padding: '11px 18px',
-            boxShadow: 'var(--shadow)',
           }}
         >
           <Stat icon="apple" value={pet.hunger} />

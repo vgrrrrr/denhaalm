@@ -65,7 +65,7 @@ export function CelebrationLayer() {
           exit={{ opacity: 0, y: -10 }}
           transition={softSpring}
           style={{
-            position: 'absolute',
+            position: 'fixed',
             top: 18,
             left: '50%',
             x: '-50%',
@@ -100,7 +100,7 @@ export function CelebrationLayer() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           style={{
-            position: 'absolute',
+            position: 'fixed',
             inset: 0,
             zIndex: 95,
             background: 'rgba(255,244,236,0.95)',

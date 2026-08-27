@@ -106,6 +106,11 @@ const STRINGS = {
     en: 'No treats left — play a game to earn more!',
   },
 
+  'care.dragfeed': { de: 'Zieh den Snack zu {name}!', en: 'Drag the snack to {name}!' },
+  'care.scrubhint': { de: 'Reibe sanft über {name}!', en: 'Gently scrub {name}!' },
+  'care.cancel': { de: 'Abbrechen', en: 'Cancel' },
+  'care.sparkling': { de: 'Blitzeblank!', en: 'Squeaky clean!' },
+
   /* play */
   'play.title': { de: 'Spielt zusammen!', en: 'Play together!' },
   'play.sub1': { de: 'Verdiene Herzen & Leckerli', en: 'Earn hearts & treats' },

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { GameShell, useGameShell } from './GameShell'
-import { useActivePet } from '../../store/haalm'
+import { stageOf, useActivePet } from '../../store/haalm'
 import { useT } from '../../i18n'
-import { portraitSrc } from '../../data/characters'
+import { spriteSrc } from '../../data/characters'
 
 /**
- * Timing game: a marker swings across a bar; tap while it's inside
+ * Timing game: the little sun swings across a bar; tap while it's inside
  * the soft zone to hop to the next cloud. Zone shrinks as you climb.
  */
 export function CloudHop() {
@@ -28,18 +28,24 @@ export function CloudHop() {
         setPlaying(true)
       }}
     >
-      {playing && <Sky key={round} onScore={setScore} onEnd={() => setPlaying(false)} />}
-      {!playing && (
+      {/* illustrated sky backdrop */}
+      <div style={{ position: 'absolute', inset: 0, borderRadius: 26, overflow: 'hidden' }}>
+        <img
+          src="/haalm/games/cloud-hop.jpg"
+          alt=""
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            borderRadius: 26,
-            background: 'linear-gradient(to bottom, #BCD6EC, var(--sky) 70%, #C9DDF0)',
-            opacity: 0.55,
+            background: playing
+              ? 'linear-gradient(to bottom, rgba(255,251,247,0.12), rgba(255,251,247,0.28))'
+              : 'rgba(255,244,236,0.55)',
           }}
         />
-      )}
+      </div>
+      {playing && <Sky key={round} onScore={setScore} onEnd={() => setPlaying(false)} />}
     </GameShell>
   )
 }
@@ -50,7 +56,7 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
   const pet = useActivePet()
   const [hops, setHops] = useState(0)
   const [misses, setMisses] = useState(0)
-  const [markerPos, setMarkerPos] = useState(0) // 0..100
+  const [markerPos, setMarkerPos] = useState(0)
   const [flash, setFlash] = useState<'hit' | 'miss' | null>(null)
   const posRef = useRef(0)
   const dirRef = useRef(1)
@@ -58,7 +64,7 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
   const missesRef = useRef(0)
   const endedRef = useRef(false)
 
-  const zoneWidth = Math.max(14, 34 - hops * 2) // shrinks per hop
+  const zoneWidth = Math.max(14, 34 - hops * 2)
   const zoneStart = 50 - zoneWidth / 2
 
   useEffect(() => {
@@ -67,7 +73,7 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
     const loop = (now: number) => {
       const dt = Math.min(50, now - last)
       last = now
-      const speed = 0.055 + hopsRef.current * 0.005 // % per ms
+      const speed = 0.055 + hopsRef.current * 0.005
       let p = posRef.current + dirRef.current * speed * dt
       if (p >= 100) {
         p = 100
@@ -115,7 +121,6 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
         inset: 0,
         borderRadius: 26,
         overflow: 'hidden',
-        background: 'linear-gradient(to bottom, #BCD6EC, var(--sky) 70%, #C9DDF0)',
         touchAction: 'none',
         display: 'flex',
         flexDirection: 'column',
@@ -123,59 +128,75 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
       }}
     >
       <span
+        className="glass--chip"
         style={{
           position: 'absolute',
           top: 12,
           right: 14,
           fontSize: 13,
-          background: 'rgba(255,251,247,0.85)',
           borderRadius: 999,
-          padding: '5px 12px',
+          padding: '6px 13px',
+          color: 'var(--berry)',
+          zIndex: 3,
         }}
       >
         {'♥'.repeat(3 - misses)}
         <span style={{ opacity: 0.25 }}>{'♥'.repeat(misses)}</span>
       </span>
 
-      {/* climbing clouds — the pet sits on the top one */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+      {/* climbing clouds — the pet rides the top one */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          zIndex: 1,
+        }}
+      >
         <motion.div
           key={hops}
-          initial={{ y: 18, opacity: 0.6 }}
+          initial={{ y: 22, opacity: 0.6 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 220, damping: 22 }}
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
         >
-          <img
-            src={pet ? portraitSrc(pet.id) : portraitSrc('gigi')}
+          <motion.img
+            src={pet ? spriteSrc(pet.id, stageOf(pet)) : spriteSrc('gigi', 'baby')}
             alt=""
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
             style={{
-              width: 62,
-              height: 62,
+              height: 78,
               objectFit: 'contain',
-              filter: flash === 'miss' ? 'saturate(0.4)' : undefined,
+              marginBottom: -6,
+              filter: flash === 'miss' ? 'saturate(0.4)' : 'drop-shadow(0 3px 5px rgba(31,31,31,0.18))',
             }}
           />
-          <Cloud size={92} />
+          <img src="/haalm/ui/fx/cloud-soft.svg" alt="" style={{ width: 108, filter: 'drop-shadow(0 6px 10px rgba(31,31,31,0.12))' }} />
         </motion.div>
-        <div style={{ opacity: 0.65, marginTop: 8 }}>
-          <Cloud size={70} />
-        </div>
-        <div style={{ opacity: 0.35, marginTop: 6 }}>
-          <Cloud size={54} />
-        </div>
-        <span style={{ fontSize: 13, fontWeight: 500, marginTop: 10 }}>{t2('game.cloudshigh', { n: hops })}</span>
+        <img src="/haalm/ui/fx/cloud-soft.svg" alt="" style={{ width: 82, opacity: 0.7, marginTop: 6 }} />
+        <img src="/haalm/ui/fx/cloud-soft.svg" alt="" style={{ width: 60, opacity: 0.4, marginTop: 4 }} />
+        <span
+          className="glass--chip"
+          style={{ fontSize: 13, fontWeight: 500, marginTop: 12, borderRadius: 999, padding: '6px 16px' }}
+        >
+          {t2('game.cloudshigh', { n: hops })}
+        </span>
       </div>
 
       {/* timing bar */}
-      <div style={{ width: '80%', marginBottom: 'calc(26px + var(--safe-bottom))' }}>
+      <div style={{ width: '78%', marginBottom: 'calc(26px + var(--safe-bottom))', zIndex: 1 }}>
         <div
+          className="glass--chip"
           style={{
             position: 'relative',
-            height: 14,
+            height: 22,
             borderRadius: 999,
-            background: 'rgba(255,251,247,0.4)',
-            border: flash === 'miss' ? '1px solid var(--berry)' : '1px solid rgba(255,251,247,0.7)',
+            border: flash === 'miss' ? '1.5px solid var(--berry)' : undefined,
+            overflow: 'visible',
           }}
         >
           <span
@@ -183,46 +204,34 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
               position: 'absolute',
               left: `${zoneStart}%`,
               width: `${zoneWidth}%`,
-              top: 0,
-              bottom: 0,
+              top: 3,
+              bottom: 3,
               borderRadius: 999,
-              background:
-                flash === 'hit' ? 'var(--meadow)' : 'rgba(255,251,247,0.9)',
+              background: flash === 'hit' ? 'var(--meadow)' : 'rgba(184,204,166,0.55)',
+              border: '1px solid rgba(143,167,125,0.6)',
               transition: 'background 0.2s',
             }}
           />
-          <span
+          <img
+            src="/haalm/ui/fx/sun.svg"
+            alt=""
             style={{
               position: 'absolute',
               left: `${markerPos}%`,
               top: '50%',
               transform: 'translate(-50%, -50%)',
-              width: 20,
-              height: 20,
-              borderRadius: 999,
-              background: 'var(--honey)',
-              boxShadow: '0 1px 6px rgba(31,31,31,0.18)',
+              width: 30,
+              filter: 'drop-shadow(0 1px 4px rgba(31,31,31,0.2))',
             }}
           />
         </div>
-        <span className="muted" style={{ fontSize: 11, display: 'block', textAlign: 'center', marginTop: 8 }}>
+        <span
+          className="muted"
+          style={{ fontSize: 11, display: 'block', textAlign: 'center', marginTop: 8 }}
+        >
           {t2('game.taptohop')}
         </span>
       </div>
     </div>
-  )
-}
-
-function Cloud({ size }: { size: number }) {
-  return (
-    <div
-      style={{
-        width: size,
-        height: size * 0.34,
-        borderRadius: 999,
-        background: 'var(--warm-white)',
-        boxShadow: '0 3px 12px rgba(31,31,31,0.06)',
-      }}
-    />
   )
 }

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { GameShell, useGameShell } from './GameShell'
 import { CHARACTERS, portraitSrc, type CharacterId } from '../../data/characters'
-import { Icon } from '../../components/ui'
 import { useT } from '../../i18n'
 
 interface Card {
@@ -42,19 +41,23 @@ export function LeafMatch() {
         setPlaying(true)
       }}
     >
-      {playing && (
-        <Board key={round} onScore={setScore} onEnd={() => setPlaying(false)} />
-      )}
-      {!playing && (
+      {/* illustrated forest backdrop */}
+      <div style={{ position: 'absolute', inset: 0, borderRadius: 26, overflow: 'hidden' }}>
+        <img
+          src="/haalm/games/leaf-match.jpg"
+          alt=""
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            borderRadius: 26,
-            background: 'rgba(184,204,166,0.28)',
+            background: playing ? 'rgba(255,251,247,0.6)' : 'rgba(255,244,236,0.65)',
+            backdropFilter: 'blur(2px)',
           }}
         />
-      )}
+      </div>
+      {playing && <Board key={round} onScore={setScore} onEnd={() => setPlaying(false)} />}
     </GameShell>
   )
 }
@@ -71,7 +74,6 @@ function Board({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
 
   useEffect(() => {
     if (matchedCount === PAIRS * 2) {
-      // score: perfect play (6 moves) = 18, each extra move costs 1
       const score = Math.max(4, 18 - Math.max(0, moves - PAIRS))
       onScore(score)
       const t = setTimeout(() => {
@@ -96,22 +98,20 @@ function Board({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
     }
 
     setMoves((m) => m + 1)
-    const [a, b] = nowOpen.map((k) => deck.find((c) => c.key === k)!)
-    const bCard = deck.find((c) => c.key === key)!
-    if (a.charId === bCard.charId) {
+    const first = deck.find((c) => c.key === nowOpen[0])!
+    if (first.charId === card.charId) {
       setDeck((d) =>
-        d.map((c) => (nowOpen.includes(c.key) || c.key === key ? { ...c, matched: true, flipped: true } : c))
+        d.map((c) => (nowOpen.includes(c.key) ? { ...c, matched: true, flipped: true } : c))
       )
       setOpen([])
     } else {
       busy.current = true
       setOpen([])
       setTimeout(() => {
-        setDeck((d) => (d.map((c) => (c.matched ? c : { ...c, flipped: false }))))
+        setDeck((d) => d.map((c) => (c.matched ? c : { ...c, flipped: false })))
         busy.current = false
       }, 750)
     }
-    void b
   }
 
   return (
@@ -120,13 +120,21 @@ function Board({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
         position: 'absolute',
         inset: 0,
         borderRadius: 26,
-        background: 'rgba(184,204,166,0.28)',
         padding: 16,
         display: 'flex',
         flexDirection: 'column',
       }}
     >
-      <span className="muted" style={{ fontSize: 12, textAlign: 'center', marginBottom: 12 }}>
+      <span
+        className="glass--chip"
+        style={{
+          fontSize: 12,
+          textAlign: 'center',
+          margin: '0 auto 14px',
+          borderRadius: 999,
+          padding: '6px 16px',
+        }}
+      >
         {t2('game.pairs', { a: matchedCount / 2, b: PAIRS, m: moves })}
       </span>
       <div
@@ -138,38 +146,77 @@ function Board({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
           alignContent: 'center',
         }}
       >
-        {deck.map((card) => (
-          <motion.button
-            key={card.key}
-            onClick={() => flip(card.key)}
-            whileTap={{ scale: 0.96 }}
-            animate={{ opacity: card.matched ? 0.55 : 1 }}
-            style={{
-              aspectRatio: '3/3.4',
-              borderRadius: 16,
-              background: card.flipped ? 'var(--warm-white)' : 'var(--meadow)',
-              border: '1px solid var(--line)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: 'var(--shadow)',
-              perspective: 400,
-            }}
-          >
-            {card.flipped ? (
-              <motion.img
-                initial={{ rotateY: 90, opacity: 0 }}
-                animate={{ rotateY: 0, opacity: 1 }}
-                transition={{ duration: 0.22 }}
-                src={portraitSrc(card.charId)}
-                alt=""
-                style={{ width: '68%', height: '68%', objectFit: 'contain' }}
-              />
-            ) : (
-              <Icon name="leaf" size={22} style={{ opacity: 0.55 }} />
-            )}
-          </motion.button>
-        ))}
+        {deck.map((card) => {
+          const shown = card.flipped || card.matched
+          return (
+            <motion.button
+              key={card.key}
+              onClick={() => flip(card.key)}
+              whileTap={{ scale: 0.96 }}
+              animate={{ opacity: card.matched ? 0.62 : 1 }}
+              style={{
+                aspectRatio: '3/3.4',
+                perspective: 500,
+                background: 'transparent',
+              }}
+            >
+              <motion.div
+                animate={{ rotateY: shown ? 180 : 0 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: '100%',
+                  transformStyle: 'preserve-3d',
+                }}
+              >
+                {/* back: leaf pattern */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: 16,
+                    backfaceVisibility: 'hidden',
+                    background: 'linear-gradient(150deg, var(--meadow), #A6BD92)',
+                    border: '1px solid rgba(255,255,255,0.5)',
+                    boxShadow: '0 4px 14px rgba(31,31,31,0.12), inset 0 1px 0 rgba(255,255,255,0.45)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <img src="/haalm/ui/fx/leaf-fall.svg" alt="" style={{ width: 26, opacity: 0.8 }} />
+                </div>
+                {/* front: character */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: 16,
+                    backfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)',
+                    background: 'rgba(255,251,247,0.92)',
+                    border: card.matched
+                      ? '1.5px solid var(--honey)'
+                      : '1px solid rgba(255,255,255,0.7)',
+                    boxShadow: card.matched
+                      ? '0 0 18px rgba(241,211,122,0.5)'
+                      : '0 4px 14px rgba(31,31,31,0.12)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <img
+                    src={portraitSrc(card.charId)}
+                    alt=""
+                    style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                  />
+                </div>
+              </motion.div>
+            </motion.button>
+          )
+        })}
       </div>
     </div>
   )

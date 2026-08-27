@@ -54,11 +54,10 @@ export function GameShell({
         <div style={{ paddingTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <BackButton to="/play" />
           <span
+            className="glass--chip"
             style={{
               fontSize: 14,
               fontWeight: 500,
-              background: 'var(--warm-white)',
-              border: '1px solid var(--line)',
               borderRadius: 999,
               padding: '8px 16px',
             }}
@@ -131,16 +130,14 @@ function Sheet({ children }: { children: ReactNode }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.26 }}
+      className="glass"
       style={{
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 'calc(12px + var(--safe-bottom))',
-        background: 'var(--warm-white)',
         borderRadius: 24,
-        border: '1px solid var(--line)',
         padding: '22px 20px',
-        boxShadow: '0 -8px 40px rgba(31,31,31,0.08)',
         zIndex: 20,
       }}
     >

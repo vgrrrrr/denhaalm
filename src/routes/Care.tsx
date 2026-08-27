@@ -9,12 +9,22 @@ import { stageOf, useHaalm } from '../store/haalm'
 import { useT } from '../i18n'
 
 type CareAnim = 'feed' | 'clean' | 'sleep' | 'cuddle' | null
+type CareMode = 'idle' | 'feeding' | 'scrubbing'
 
 interface Floater {
   id: number
   text: string
   color: string
 }
+
+interface ScrubBubble {
+  id: number
+  x: number
+  y: number
+  size: number
+}
+
+const SCRUB_TARGET = 360 // px of rubbing needed for a full clean
 
 export function Care() {
   const { id } = useParams()
@@ -26,11 +36,20 @@ export function Care() {
   const cuddle = useHaalm((s) => s.cuddle)
   const toggleSleep = useHaalm((s) => s.toggleSleep)
 
+  const [mode, setMode] = useState<CareMode>('idle')
   const [anim, setAnim] = useState<CareAnim>(null)
+  const [chewing, setChewing] = useState(false)
   const [burst, setBurst] = useState<{ kind: ParticleKind; seq: number } | null>(null)
-  const [snackFly, setSnackFly] = useState(0)
   const [note, setNote] = useState('')
   const [floaters, setFloaters] = useState<Floater[]>([])
+  const [dragKey, setDragKey] = useState(0)
+  const [scrub, setScrub] = useState(0)
+  const [bubbles, setBubbles] = useState<ScrubBubble[]>([])
+  const [spongePos, setSpongePos] = useState<{ x: number; y: number } | null>(null)
+
+  const petRef = useRef<HTMLDivElement>(null)
+  const scrubLast = useRef<{ x: number; y: number } | null>(null)
+  const scrubTotal = useRef(0)
   const seq = useRef(0)
   const { t, loc } = useT()
 
@@ -50,7 +69,7 @@ export function Care() {
     setTimeout(() => setFloaters((prev) => prev.filter((x) => x.id !== f.id)), 1400)
   }
 
-  const play = (a: CareAnim, message: string, ms = 1400) => {
+  const playAnim = (a: CareAnim, message: string, ms = 1400) => {
     setAnim(a)
     setNote(message)
     setTimeout(() => setAnim(null), ms)
@@ -62,55 +81,142 @@ export function Care() {
     setTimeout(() => setNote(''), 2200)
   }
 
-  const onFeed = () => {
+  /* ------------------------------------------------ feed: drag the snack */
+
+  const startFeeding = () => {
     if (pet.sleeping) return setNoteBriefly(t('care.asleep', { name: char.name }))
     if (treats < 1) return setNoteBriefly(t('care.notreats'))
-    if (feed(petId)) {
-      seq.current += 1
-      setSnackFly(seq.current)
+    setDragKey((k) => k + 1)
+    setMode('feeding')
+    setNote(t('care.dragfeed', { name: char.name }))
+  }
+
+  const onSnackDragEnd = (pointX: number, pointY: number) => {
+    const rect = petRef.current?.getBoundingClientRect()
+    const hit =
+      rect &&
+      pointX > rect.left - 14 &&
+      pointX < rect.right + 14 &&
+      pointY > rect.top - 14 &&
+      pointY < rect.bottom + 14
+    if (hit && feed(petId)) {
+      setMode('idle')
+      // eating: chewing squash loop, then hearts
+      setChewing(true)
       setTimeout(() => {
+        setChewing(false)
         fireBurst('hearts')
         addFloater('+16', 'var(--berry)')
-      }, 620)
-      play('feed', t('care.munch', { name: char.name }))
+      }, 1100)
+      playAnim('feed', t('care.munch', { name: char.name }), 1400)
+    } else {
+      // snap back — keep feeding mode so the user can retry
+      setDragKey((k) => k + 1)
     }
   }
-  const onClean = () => {
-    clean(petId)
-    fireBurst('bubbles')
-    setTimeout(() => fireBurst('sparkles'), 900)
-    addFloater('+28', 'var(--sky)')
-    play('clean', t('care.splish'), 1800)
+
+  /* ------------------------------------------------ clean: scrub the pet */
+
+  const startScrubbing = () => {
+    scrubTotal.current = 0
+    setScrub(0)
+    setBubbles([])
+    setMode('scrubbing')
+    setNote(t('care.scrubhint', { name: char.name }))
   }
+
+  const onScrubMove = (e: React.PointerEvent) => {
+    if (mode !== 'scrubbing' || e.buttons === 0) return
+    const rect = petRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const inside =
+      e.clientX > rect.left - 20 &&
+      e.clientX < rect.right + 20 &&
+      e.clientY > rect.top - 20 &&
+      e.clientY < rect.bottom + 20
+    setSpongePos({ x: e.clientX, y: e.clientY })
+    if (!inside) {
+      scrubLast.current = null
+      return
+    }
+    const last = scrubLast.current
+    scrubLast.current = { x: e.clientX, y: e.clientY }
+    if (!last) return
+    const dist = Math.hypot(e.clientX - last.x, e.clientY - last.y)
+    scrubTotal.current = Math.min(SCRUB_TARGET, scrubTotal.current + dist)
+    const progress = scrubTotal.current / SCRUB_TARGET
+    setScrub(progress)
+
+    // spawn a bubble every so often at the sponge
+    if (Math.random() < Math.min(0.5, dist / 22)) {
+      seq.current += 1
+      const b = {
+        id: seq.current,
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        size: 8 + Math.random() * 12,
+      }
+      setBubbles((prev) => [...prev.slice(-14), b])
+      setTimeout(() => setBubbles((prev) => prev.filter((x) => x.id !== b.id)), 900)
+    }
+
+    if (progress >= 1) {
+      finishScrub()
+    }
+  }
+
+  const finishScrub = () => {
+    setMode('idle')
+    setSpongePos(null)
+    scrubLast.current = null
+    clean(petId)
+    fireBurst('sparkles')
+    addFloater('+28', 'var(--sky)')
+    playAnim('clean', t('care.sparkling'), 1600)
+  }
+
+  /* --------------------------------------------------- sleep and cuddle */
+
   const onSleep = () => {
+    if (mode !== 'idle') return
     toggleSleep(petId)
     if (!pet.sleeping) {
       fireBurst('stars')
-      play('sleep', t('care.dozing', { name: char.name }), 1800)
+      playAnim('sleep', t('care.dozing', { name: char.name }), 1800)
     } else {
       fireBurst('sparkles')
       setNoteBriefly(t('care.woke', { name: char.name }))
     }
   }
   const onCuddle = () => {
+    if (mode !== 'idle') return
     if (pet.sleeping) return setNoteBriefly(t('care.asleep', { name: char.name }))
     cuddle(petId)
     fireBurst('hearts')
     addFloater('+10', 'var(--meadow-dark)')
-    play('cuddle', t('care.loves', { name: char.name }))
+    playAnim('cuddle', t('care.loves', { name: char.name }))
   }
 
-  const petMotion =
-    anim === 'feed'
-      ? { scale: [1, 1.025, 1] }
-      : anim === 'clean'
-        ? { rotate: [0, -1, 1, 0] }
-        : anim === 'cuddle'
-          ? { scaleX: [1, 1.03, 1], scaleY: [1, 0.98, 1] }
+  const petMotion = chewing
+    ? { scaleY: [1, 0.955, 1, 0.955, 1, 0.965, 1], scaleX: [1, 1.02, 1, 1.02, 1, 1.015, 1], rotate: [0, -1, 0, 1, 0, -0.5, 0] }
+    : anim === 'clean'
+      ? { rotate: [0, -1, 1, 0] }
+      : anim === 'cuddle'
+        ? { scaleX: [1, 1.03, 1], scaleY: [1, 0.98, 1] }
+        : mode === 'scrubbing'
+          ? { rotate: [-0.8, 0.8, -0.8] }
           : {}
 
   return (
-    <div className="page px" style={{ position: 'relative', minHeight: '100dvh', overflow: 'hidden' }}>
+    <div
+      className="page px"
+      style={{ position: 'relative', minHeight: '100dvh', overflow: 'hidden' }}
+      onPointerMove={onScrubMove}
+      onPointerUp={() => {
+        scrubLast.current = null
+        if (mode === 'scrubbing') setSpongePos(null)
+      }}
+    >
       {pet.sleeping && (
         <div
           style={{
@@ -127,13 +233,12 @@ export function Care() {
       <div style={{ paddingTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <BackButton />
         <span
+          className="glass--chip"
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: 6,
             fontSize: 12,
-            background: 'var(--warm-white)',
-            border: '1px solid var(--line)',
             borderRadius: 999,
             padding: '8px 14px',
           }}
@@ -150,9 +255,14 @@ export function Care() {
       {/* character on its little meadow patch */}
       <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', margin: '20px 0 8px', zIndex: 2 }}>
         <motion.div
+          ref={petRef}
           animate={petMotion}
-          transition={{ duration: 0.55, ease: 'easeInOut' }}
-          style={{ position: 'relative', transformOrigin: '50% 100%' }}
+          transition={{ duration: chewing ? 1.05 : 0.55, ease: 'easeInOut' }}
+          style={{
+            position: 'relative',
+            transformOrigin: '50% 100%',
+            touchAction: mode === 'scrubbing' ? 'none' : undefined,
+          }}
         >
           <PetSprite
             id={petId}
@@ -161,23 +271,29 @@ export function Care() {
             sleeping={pet.sleeping}
             wander={false}
           />
-          {burst && <ParticleBurst kind={burst.kind} trigger={burst.seq} count={burst.kind === 'bubbles' ? 12 : 9} />}
+          {burst && <ParticleBurst kind={burst.kind} trigger={burst.seq} count={9} />}
 
-          {/* flying snack */}
-          <AnimatePresence>
-            {snackFly > 0 && (
-              <motion.span
-                key={snackFly}
-                initial={{ opacity: 0, x: 110, y: 130, scale: 0.7, rotate: 20 }}
-                animate={{ opacity: [0, 1, 1, 0], x: 30, y: 40, scale: [0.7, 1, 0.5], rotate: -8 }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                onAnimationComplete={() => setSnackFly(0)}
-                style={{ position: 'absolute', left: 0, top: 0, zIndex: 9 }}
-              >
-                <Icon name="apple" size={26} />
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {/* scrub bubbles at the sponge position */}
+          {bubbles.map((b) => (
+            <motion.span
+              key={b.id}
+              initial={{ opacity: 0.9, scale: 0.5 }}
+              animate={{ opacity: 0, scale: 1.15, y: -22 }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
+              style={{
+                position: 'absolute',
+                left: b.x - b.size / 2,
+                top: b.y - b.size / 2,
+                width: b.size,
+                height: b.size,
+                borderRadius: 999,
+                border: '1.5px solid rgba(169,203,232,0.95)',
+                background: 'rgba(255,251,247,0.5)',
+                pointerEvents: 'none',
+                zIndex: 8,
+              }}
+            />
+          ))}
 
           {/* stat floaters */}
           {floaters.map((f) => (
@@ -203,11 +319,32 @@ export function Care() {
         </motion.div>
       </div>
 
+      {/* scrub progress */}
+      <AnimatePresence>
+        {mode === 'scrubbing' && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            style={{ maxWidth: 220, margin: '0 auto 6px' }}
+          >
+            <div style={{ height: 7, borderRadius: 999, background: 'rgba(31,31,31,0.07)' }}>
+              <motion.div
+                animate={{ width: `${Math.max(4, scrub * 100)}%` }}
+                transition={{ duration: 0.15 }}
+                style={{ height: '100%', borderRadius: 999, background: 'var(--sky)' }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* feedback line */}
       <div style={{ height: 22, textAlign: 'center', position: 'relative', zIndex: 2 }}>
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {note && (
             <motion.span
+              key={note}
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -220,6 +357,64 @@ export function Care() {
         </AnimatePresence>
       </div>
 
+      {/* draggable snack */}
+      <AnimatePresence>
+        {mode === 'feeding' && (
+          <motion.div
+            key={dragKey}
+            drag
+            dragMomentum={false}
+            whileDrag={{ scale: 1.15, rotate: -6 }}
+            onDragEnd={(_e, info) => onSnackDragEnd(info.point.x, info.point.y)}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: [0.6, 1.1, 1] }}
+            exit={{ opacity: 0, scale: 0.4 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 120px)',
+              marginLeft: -30,
+              width: 60,
+              height: 60,
+              borderRadius: 999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'grab',
+              zIndex: 30,
+              touchAction: 'none',
+            }}
+            className="glass--chip"
+          >
+            <motion.span
+              animate={{ y: [0, -3, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ display: 'flex' }}
+            >
+              <img src="/haalm/ui/fx/berry.svg" alt="" style={{ width: 34, height: 38 }} />
+            </motion.span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* sponge follows the finger while scrubbing */}
+      {mode === 'scrubbing' && spongePos && (
+        <img
+          src="/haalm/ui/fx/sponge.svg"
+          alt=""
+          style={{
+            position: 'fixed',
+            left: spongePos.x - 24,
+            top: spongePos.y - 20,
+            width: 48,
+            pointerEvents: 'none',
+            zIndex: 60,
+            rotate: '-8deg',
+          }}
+        />
+      )}
+
       {/* 2×2 care actions */}
       <div
         style={{
@@ -229,10 +424,13 @@ export function Care() {
           marginTop: 12,
           position: 'relative',
           zIndex: 2,
+          opacity: mode === 'idle' ? 1 : 0.35,
+          pointerEvents: mode === 'idle' ? undefined : 'none',
+          transition: 'opacity 0.25s',
         }}
       >
-        <CareAction label={t('care.feed')} sub={t('care.feedsub', { n: treats })} icon="apple" bg="rgba(232,162,175,0.34)" onClick={onFeed} />
-        <CareAction label={t('care.cleanaction')} sub={t('care.cleansub')} icon="drop" bg="rgba(169,203,232,0.34)" onClick={onClean} />
+        <CareAction label={t('care.feed')} sub={t('care.feedsub', { n: treats })} icon="apple" bg="rgba(232,162,175,0.34)" onClick={startFeeding} />
+        <CareAction label={t('care.cleanaction')} sub={t('care.cleansub')} icon="drop" bg="rgba(169,203,232,0.34)" onClick={startScrubbing} />
         <CareAction
           label={pet.sleeping ? t('care.wake') : t('care.sleep')}
           sub={pet.sleeping ? t('care.wakesub') : t('care.sleepsub')}
@@ -242,6 +440,36 @@ export function Care() {
         />
         <CareAction label={t('care.cuddle')} sub={t('care.cuddlesub')} icon="heart" bg="rgba(232,162,175,0.2)" onClick={onCuddle} />
       </div>
+
+      {/* cancel interactive mode */}
+      <AnimatePresence>
+        {mode !== 'idle' && (
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setMode('idle')
+              setSpongePos(null)
+              setNote('')
+            }}
+            className="glass--chip"
+            style={{
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 54px)',
+              borderRadius: 999,
+              padding: '9px 22px',
+              fontSize: 13,
+              color: 'var(--muted)',
+              zIndex: 25,
+            }}
+          >
+            {t('care.cancel')}
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { GameShell, useGameShell } from './GameShell'
-import { useActivePet } from '../../store/haalm'
+import { stageOf, useActivePet } from '../../store/haalm'
 import { useT } from '../../i18n'
-import { portraitSrc } from '../../data/characters'
+import { spriteSrc } from '../../data/characters'
 
 const GAME_SECONDS = 30
 
@@ -12,6 +12,7 @@ interface Berry {
   y: number // 0..100 %
   speed: number
   golden: boolean
+  spin: number
 }
 
 export function BerryBounce() {
@@ -31,23 +32,30 @@ export function BerryBounce() {
         setPlaying(true)
       }}
     >
+      <Backdrop dimmed={!playing} />
       {playing && <Field onScore={setScore} onEnd={() => setPlaying(false)} />}
-      {!playing && <FieldBackdrop />}
     </GameShell>
   )
 }
 
-function FieldBackdrop() {
+function Backdrop({ dimmed }: { dimmed: boolean }) {
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        borderRadius: 26,
-        background: 'linear-gradient(to bottom, var(--sky) 0%, #DCEAF7 34%, var(--meadow) 34.5%, #A6BD92 100%)',
-        opacity: 0.5,
-      }}
-    />
+    <div style={{ position: 'absolute', inset: 0, borderRadius: 26, overflow: 'hidden' }}>
+      <img
+        src="/haalm/games/berry-bounce.jpg"
+        alt=""
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: dimmed
+            ? 'rgba(255,244,236,0.55)'
+            : 'linear-gradient(to bottom, rgba(255,251,247,0.16), rgba(255,251,247,0) 40%)',
+        }}
+      />
+    </div>
   )
 }
 
@@ -58,14 +66,13 @@ function Field({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
   const [berries, setBerries] = useState<Berry[]>([])
   const [basketX, setBasketX] = useState(50)
   const [timeLeft, setTimeLeft] = useState(GAME_SECONDS)
-  const [pop, setPop] = useState<{ x: number; y: number; id: number } | null>(null)
+  const [pop, setPop] = useState<{ x: number; id: number; golden: boolean } | null>(null)
   const scoreRef = useRef(0)
   const basketRef = useRef(50)
   const nextId = useRef(1)
 
   basketRef.current = basketX
 
-  // game loop
   useEffect(() => {
     let raf = 0
     let last = performance.now()
@@ -77,14 +84,13 @@ function Field({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
       spawnIn -= dt
       setBerries((prev) => {
         let next = prev.map((b) => ({ ...b, y: b.y + (b.speed * dt) / 1000 }))
-        // catch check near basket line (y ~ 86%)
         const caught = next.filter(
-          (b) => b.y >= 82 && b.y <= 94 && Math.abs(b.x - basketRef.current) < 11
+          (b) => b.y >= 80 && b.y <= 93 && Math.abs(b.x - basketRef.current) < 12
         )
         if (caught.length) {
           for (const c of caught) {
             scoreRef.current += c.golden ? 3 : 1
-            setPop({ x: c.x, y: 84, id: c.id })
+            setPop({ x: c.x, id: c.id, golden: c.golden })
           }
           onScore(scoreRef.current)
           const ids = new Set(caught.map((c) => c.id))
@@ -96,9 +102,10 @@ function Field({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
           next.push({
             id: nextId.current++,
             x: 8 + Math.random() * 84,
-            y: -4,
+            y: -6,
             speed: 26 + Math.random() * 16,
             golden: Math.random() < 0.14,
+            spin: Math.random() < 0.5 ? -1 : 1,
           })
         }
         return next
@@ -109,7 +116,6 @@ function Field({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
     return () => cancelAnimationFrame(raf)
   }, [onScore])
 
-  // timer
   useEffect(() => {
     const t = setInterval(() => {
       setTimeLeft((s) => {
@@ -130,7 +136,7 @@ function Field({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
     const rect = fieldRef.current?.getBoundingClientRect()
     if (!rect) return
     const x = ((clientX - rect.left) / rect.width) * 100
-    setBasketX(Math.max(8, Math.min(92, x)))
+    setBasketX(Math.max(9, Math.min(91, x)))
   }
 
   return (
@@ -144,22 +150,20 @@ function Field({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
         inset: 0,
         borderRadius: 26,
         overflow: 'hidden',
-        background: 'linear-gradient(to bottom, var(--sky) 0%, #DCEAF7 40%, var(--meadow) 40.5%, #A6BD92 100%)',
         touchAction: 'none',
-        cursor: 'none',
       }}
     >
       {/* timer */}
       <span
+        className="glass--chip"
         style={{
           position: 'absolute',
           top: 12,
           right: 14,
           fontSize: 13,
           fontWeight: 500,
-          background: 'rgba(255,251,247,0.85)',
           borderRadius: 999,
-          padding: '5px 12px',
+          padding: '6px 13px',
           zIndex: 3,
         }}
       >
@@ -167,33 +171,20 @@ function Field({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
       </span>
 
       {berries.map((b) => (
-        <span
+        <img
           key={b.id}
+          src={b.golden ? '/haalm/ui/fx/berry-golden.svg' : '/haalm/ui/fx/berry.svg'}
+          alt=""
           style={{
             position: 'absolute',
             left: `${b.x}%`,
             top: `${b.y}%`,
-            transform: 'translate(-50%, -50%)',
-            width: b.golden ? 22 : 18,
-            height: b.golden ? 22 : 18,
-            borderRadius: 999,
-            background: b.golden ? 'var(--honey)' : 'var(--berry)',
-            boxShadow: 'inset -2px -3px 0 rgba(31,31,31,0.08)',
+            width: b.golden ? 34 : 28,
+            transform: `translate(-50%, -50%) rotate(${b.y * 2.4 * b.spin}deg)`,
+            filter: 'drop-shadow(0 3px 4px rgba(31,31,31,0.18))',
+            pointerEvents: 'none',
           }}
-        >
-          <span
-            style={{
-              position: 'absolute',
-              top: -4,
-              left: '50%',
-              transform: 'translateX(-50%) rotate(-16deg)',
-              width: 6,
-              height: 7,
-              borderRadius: '999px 999px 2px 2px',
-              background: 'var(--meadow-dark)',
-            }}
-          />
-        </span>
+        />
       ))}
 
       {/* catch pop */}
@@ -203,46 +194,60 @@ function Field({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
           style={{
             position: 'absolute',
             left: `${pop.x}%`,
-            top: `${pop.y}%`,
+            top: '80%',
             transform: 'translate(-50%, -50%)',
             fontSize: 15,
-            animation: 'berry-pop 0.5s ease-out forwards',
+            fontWeight: 500,
+            color: pop.golden ? 'var(--honey)' : 'var(--warm-white)',
+            textShadow: '0 1px 4px rgba(31,31,31,0.35)',
+            animation: 'berry-pop 0.55s ease-out forwards',
             pointerEvents: 'none',
+            zIndex: 2,
           }}
         >
-          +1
+          +{pop.golden ? 3 : 1}
         </span>
       )}
-      <style>{`@keyframes berry-pop { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 -18px; } }`}</style>
+      <style>{`@keyframes berry-pop { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 -22px; } }`}</style>
 
-      {/* basket with the pet portrait riding it */}
+      {/* basket with the pet riding along */}
       <div
         style={{
           position: 'absolute',
           left: `${basketX}%`,
-          top: '86%',
+          top: '87%',
           transform: 'translate(-50%, -50%)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           pointerEvents: 'none',
+          transition: 'left 0.05s linear',
         }}
       >
         {pet && (
           <img
-            src={portraitSrc(pet.id)}
+            src={spriteSrc(pet.id, stageOf(pet))}
             alt=""
-            style={{ width: 40, height: 40, objectFit: 'contain', marginBottom: -6 }}
+            style={{
+              height: 52,
+              objectFit: 'contain',
+              marginBottom: -8,
+              filter: 'drop-shadow(0 2px 3px rgba(31,31,31,0.2))',
+            }}
           />
         )}
+        <img
+          src="/haalm/ui/fx/basket.svg"
+          alt=""
+          style={{ width: 86, filter: 'drop-shadow(0 4px 6px rgba(31,31,31,0.22))' }}
+        />
         <div
           style={{
-            width: 72,
-            height: 26,
-            borderRadius: '0 0 24px 24px',
-            background: '#C9A97F',
-            border: '2px solid #B29065',
-            borderTop: '3px solid #B29065',
+            width: 60,
+            height: 8,
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse, rgba(31,31,31,0.28), rgba(31,31,31,0) 70%)',
+            marginTop: 3,
           }}
         />
       </div>
