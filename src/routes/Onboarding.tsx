@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { HaalmWordmark, SoftButton, softEase } from '../components/ui'
-import { CharacterSprite } from '../components/CharacterSprite'
+import { PetSprite } from '../components/PetSprite'
+import { WorldScene } from '../components/WorldScene'
 import { useHaalm } from '../store/haalm'
 
 export function Onboarding() {
@@ -43,36 +44,29 @@ export function Onboarding() {
           overflow: 'hidden',
         }}
       >
-        <img
-          src="/haalm/environments/home-meadow-390x844@3x.jpg"
-          alt=""
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center 62%',
-          }}
-        />
+        <WorldScene>
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: '15%',
+              transform: 'translateX(-46%)',
+              zIndex: 2,
+            }}
+          >
+            <PetSprite id="gigi" stage="baby" width="38vw" maxWidth={168} wander={false} />
+          </div>
+        </WorldScene>
         <div
           style={{
             position: 'absolute',
             inset: 0,
             background:
-              'linear-gradient(to bottom, var(--cream) 0%, rgba(255,244,236,0) 18%, rgba(255,244,236,0) 70%, rgba(255,244,236,0.9) 100%)',
+              'linear-gradient(to bottom, var(--cream) 0%, rgba(255,244,236,0) 18%, rgba(255,244,236,0) 72%, rgba(255,244,236,0.9) 100%)',
+            pointerEvents: 'none',
+            zIndex: 5,
           }}
         />
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: '16%',
-            transform: 'translateX(-42%)',
-          }}
-        >
-          <CharacterSprite id="gigi" stage="baby" width="38vw" style={{ maxWidth: 168 }} />
-        </div>
       </div>
 
       <motion.div

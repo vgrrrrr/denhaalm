@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { BackButton, Icon, SoftButton, StatusBar } from '../components/ui'
-import { CharacterSprite } from '../components/CharacterSprite'
+import { PetSprite } from '../components/PetSprite'
 import { characterById, type CharacterId } from '../data/characters'
 import { locationById } from '../data/locations'
 import {
@@ -68,7 +68,7 @@ export function PetDetail() {
         transition={{ duration: 0.3 }}
         style={{ display: 'flex', justifyContent: 'center', margin: '18px 0 8px' }}
       >
-        <CharacterSprite id={pet.id} stage={stage} width="min(48vw, 200px)" sleeping={pet.sleeping} />
+        <PetSprite id={pet.id} stage={stage} width="min(48vw, 200px)" sleeping={pet.sleeping} wander={false} />
       </motion.div>
 
       {/* level progress */}

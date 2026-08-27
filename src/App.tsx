@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { BottomNav } from './components/BottomNav'
+import { CelebrationLayer } from './components/CelebrationLayer'
 import { pageMotion } from './components/ui'
 import { useHaalm } from './store/haalm'
 import { Onboarding } from './routes/Onboarding'
@@ -85,6 +86,7 @@ function Shell() {
         </motion.div>
       </AnimatePresence>
       {showNav && <BottomNav />}
+      <CelebrationLayer />
     </div>
   )
 }

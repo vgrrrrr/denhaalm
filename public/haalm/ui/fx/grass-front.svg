@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="150" viewBox="0 0 800 150">
+  <!-- soft foreground meadow strip: back layer -->
+  <path d="M0 150 L0 96 Q40 78 80 92 Q120 104 160 88 Q205 72 250 90 Q295 106 340 86 Q385 68 430 88 Q475 106 520 90 Q565 74 610 92 Q655 108 700 88 Q750 70 800 92 L800 150 Z" fill="#8FA77D" opacity="0.9"/>
+  <!-- blades back -->
+  <g fill="#8FA77D">
+    <path d="M60 100 Q56 66 66 46 Q68 72 72 98 Z"/>
+    <path d="M210 96 Q204 60 216 40 Q219 68 224 94 Z"/>
+    <path d="M375 94 Q371 62 381 44 Q383 70 387 92 Z"/>
+    <path d="M540 98 Q534 64 546 46 Q548 72 553 96 Z"/>
+    <path d="M700 96 Q695 62 706 44 Q708 70 712 94 Z"/>
+  </g>
+  <!-- front layer -->
+  <path d="M0 150 L0 116 Q50 100 100 114 Q150 128 200 110 Q252 94 305 112 Q356 128 408 110 Q460 94 512 112 Q564 128 616 112 Q668 96 720 114 Q762 128 800 116 L800 150 Z" fill="#B8CCA6"/>
+  <!-- blades front -->
+  <g fill="#A6BD92">
+    <path d="M120 122 Q114 88 126 66 Q129 96 134 120 Z"/>
+    <path d="M290 118 Q285 86 296 66 Q298 94 303 116 Z"/>
+    <path d="M455 120 Q449 88 461 68 Q463 96 468 118 Z"/>
+    <path d="M620 122 Q615 90 626 70 Q628 98 633 120 Z"/>
+    <path d="M755 118 Q750 88 760 70 Q762 96 766 116 Z"/>
+  </g>
+  <!-- daisies -->
+  <g>
+    <g transform="translate(170 116)">
+      <circle r="5" fill="#FFFBF7" cx="-6" cy="0"/><circle r="5" fill="#FFFBF7" cx="6" cy="0"/><circle r="5" fill="#FFFBF7" cx="0" cy="-6"/><circle r="5" fill="#FFFBF7" cx="0" cy="6"/><circle r="4" fill="#F1D37A"/>
+    </g>
+    <g transform="translate(430 120) scale(0.85)">
+      <circle r="5" fill="#FFFBF7" cx="-6" cy="0"/><circle r="5" fill="#FFFBF7" cx="6" cy="0"/><circle r="5" fill="#FFFBF7" cx="0" cy="-6"/><circle r="5" fill="#FFFBF7" cx="0" cy="6"/><circle r="4" fill="#E8A2AF"/>
+    </g>
+    <g transform="translate(680 118) scale(0.9)">
+      <circle r="5" fill="#FFFBF7" cx="-6" cy="0"/><circle r="5" fill="#FFFBF7" cx="6" cy="0"/><circle r="5" fill="#FFFBF7" cx="0" cy="-6"/><circle r="5" fill="#FFFBF7" cx="0" cy="6"/><circle r="4" fill="#F1D37A"/>
+    </g>
+    <circle cx="80" cy="128" r="4" fill="#E8A2AF" opacity="0.85"/>
+    <circle cx="350" cy="132" r="3.5" fill="#CDB9DB" opacity="0.85"/>
+    <circle cx="560" cy="130" r="4" fill="#E8A2AF" opacity="0.85"/>
+    <circle cx="760" cy="134" r="3.5" fill="#CDB9DB" opacity="0.85"/>
+  </g>
+</svg>

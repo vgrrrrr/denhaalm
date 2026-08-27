@@ -34,6 +34,20 @@ demo code such as `HAALM-GIGI`, `HAALM-BENI`, … to unlock an animal.
 - **Herd** — collection screen for all eight canonical animals plus locked slots
 - **Profile** — parent settings (sound, child-safe mode, …) and demo reset
 
+## Living world & effects
+
+- Time-of-day scenes (dawn / day / evening / night) with drifting clouds, birds and
+  butterflies by day, moon, stars and fireflies at night (`/#/home?phase=night` forces
+  a phase for demos)
+- Pets are alive: breathing, contact shadow, spontaneous idle behaviors (hopping,
+  looking around, wiggling, strolling with direction flip), need-emote thought bubbles,
+  and tap reactions with particle bursts
+- Every character sits on a grass meadow patch (also visually grounds assets whose
+  feet were cropped in the source art)
+- Care feedback: flying snack, rising bubbles, sparkles, stat floaters
+- Level-up toasts and a full baby-to-grown evolution ceremony
+- The Alm map shows the active pet at its current location; clouds drift over the map
+
 ## Design
 
 Strictly follows the den haalm brand style sheet and the v0 rebuild spec in the asset

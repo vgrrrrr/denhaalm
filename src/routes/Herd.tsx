@@ -52,9 +52,11 @@ export function Herd() {
                 opacity: unlocked ? 1 : 0.55,
               }}
             >
-              <img
+              <motion.img
                 src={portraitSrc(char.id)}
                 alt={char.name}
+                animate={unlocked ? { y: [0, -2, 0], rotate: [0, 1.2, 0, -1.2, 0] } : {}}
+                transition={{ duration: 4.6 + i * 0.35, repeat: Infinity, ease: 'easeInOut' }}
                 style={{
                   width: 62,
                   height: 62,

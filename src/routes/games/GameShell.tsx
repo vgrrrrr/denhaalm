@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { BackButton, Icon, SoftButton, softSpring } from '../../components/ui'
+import { ParticleBurst } from '../../components/Particles'
 import { characterById, portraitSrc } from '../../data/characters'
 import { useActivePet, useHaalm, type GameReward } from '../../store/haalm'
 
@@ -93,8 +94,9 @@ export function GameShell({
                     style={{ width: 64, height: 64, objectFit: 'contain', margin: '0 auto 8px', display: 'block' }}
                   />
                 )}
-                <p style={{ textAlign: 'center', fontSize: 17, fontWeight: 500 }}>
+                <p style={{ textAlign: 'center', fontSize: 17, fontWeight: 500, position: 'relative' }}>
                   {reward.newBest ? 'New best!' : 'Well played!'}
+                  {reward.newBest && <ParticleBurst kind="sparkles" trigger={score + 1} count={10} />}
                 </p>
                 <p className="muted" style={{ textAlign: 'center', fontSize: 13, marginTop: 4 }}>
                   Score {score}

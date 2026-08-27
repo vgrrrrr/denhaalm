@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Icon, SoftButton } from '../components/ui'
-import { CharacterSprite } from '../components/CharacterSprite'
-import { CareOverlay, type OverlayKind } from '../components/Overlays'
+import { WorldScene, type DayPhase } from '../components/WorldScene'
+import { PetSprite } from '../components/PetSprite'
 import { characterById } from '../data/characters'
 import { moodOf, stageOf, useActivePet, useHaalm, levelFromXp } from '../store/haalm'
 
@@ -15,13 +15,26 @@ const greeting = () => {
   return 'Good evening'
 }
 
+/** icon hint for the pet's most urgent need */
+const emoteFor = (pet: { hunger: number; energy: number; cleanliness: number; happiness: number }) => {
+  if (pet.hunger < 35) return 'apple'
+  if (pet.energy < 30) return 'moon'
+  if (pet.cleanliness < 30) return 'drop'
+  if (pet.happiness < 35) return 'heart'
+  return null
+}
+
 export function Home() {
   const navigate = useNavigate()
+  const location = useLocation()
   const pet = useActivePet()
+  // demo/debug: /#/home?phase=night forces a time of day
+  const phaseOverride = (new URLSearchParams(location.search).get('phase') ?? undefined) as
+    | DayPhase
+    | undefined
   const claimDailyBonus = useHaalm((s) => s.claimDailyBonus)
   const streak = useHaalm((s) => s.streak)
   const [bonus, setBonus] = useState(0)
-  const [tapOverlay, setTapOverlay] = useState<OverlayKind>(null)
 
   useEffect(() => {
     const b = claimDailyBonus()
@@ -45,41 +58,32 @@ export function Home() {
   const { level } = levelFromXp(pet.xp)
   const stage = stageOf(pet)
 
-  const tapPet = () => {
-    setTapOverlay('hearts')
-    setTimeout(() => setTapOverlay(null), 1200)
-  }
-
   return (
     <div className="page page--bare" style={{ minHeight: '100dvh', position: 'relative', overflow: 'hidden' }}>
-      {/* world scene */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        <img
-          src="/haalm/environments/home-meadow-390x844@3x.jpg"
-          alt=""
+      <WorldScene dimmed={pet.sleeping} phase={phaseOverride}>
+        {/* the character living in the scene */}
+        <div
           style={{
             position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center',
+            left: '50%',
+            bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 16%)',
+            transform: 'translateX(-46%)',
+            zIndex: 2,
           }}
-        />
-        {pet.sleeping && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'var(--lavender)',
-              opacity: 0.12,
-            }}
+        >
+          <PetSprite
+            id={pet.id}
+            stage={stage}
+            width="40vw"
+            maxWidth={190}
+            sleeping={pet.sleeping}
+            emote={emoteFor(pet)}
           />
-        )}
-      </div>
+        </div>
+      </WorldScene>
 
       {/* top copy */}
-      <div className="px" style={{ position: 'relative', paddingTop: 26, zIndex: 3 }}>
+      <div className="px" style={{ position: 'relative', paddingTop: 26, zIndex: 6 }}>
         <motion.p
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
@@ -120,7 +124,7 @@ export function Home() {
               position: 'absolute',
               top: 24,
               right: 20,
-              zIndex: 5,
+              zIndex: 7,
               background: 'var(--warm-white)',
               border: '1px solid var(--line)',
               borderRadius: 999,
@@ -138,44 +142,6 @@ export function Home() {
         )}
       </AnimatePresence>
 
-      {/* the character living in the scene */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 15%)',
-          transform: 'translateX(-44%)',
-          zIndex: 2,
-        }}
-      >
-        <div style={{ position: 'relative' }}>
-          <CharacterSprite
-            id={pet.id}
-            stage={stage}
-            width="38vw"
-            sleeping={pet.sleeping}
-            onTap={tapPet}
-            style={{ maxWidth: 180 }}
-          />
-          <CareOverlay kind={tapOverlay} />
-          {pet.sleeping && (
-            <motion.img
-              src="/haalm/ui/overlays/sleep.svg"
-              alt=""
-              animate={{ opacity: [0.5, 0.8, 0.5], y: [0, -4, 0] }}
-              transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
-              style={{
-                position: 'absolute',
-                top: '-18%',
-                right: '-14%',
-                width: '46%',
-                pointerEvents: 'none',
-              }}
-            />
-          )}
-        </div>
-      </div>
-
       {/* status capsule + CTA */}
       <div
         style={{
@@ -183,7 +149,7 @@ export function Home() {
           left: 20,
           right: 20,
           bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 16px)',
-          zIndex: 4,
+          zIndex: 6,
           display: 'flex',
           flexDirection: 'column',
           gap: 10,
@@ -216,10 +182,19 @@ export function Home() {
 }
 
 function Stat({ icon, value }: { icon: string; value: number }) {
+  const low = value < 35
   return (
     <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <Icon name={icon} size={16} />
-      <span style={{ fontSize: 12, fontWeight: 500 }}>{Math.round(value)}</span>
+      <motion.span
+        animate={low ? { scale: [1, 1.18, 1] } : {}}
+        transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ display: 'flex' }}
+      >
+        <Icon name={icon} size={16} />
+      </motion.span>
+      <span style={{ fontSize: 12, fontWeight: 500, color: low ? 'var(--berry)' : undefined }}>
+        {Math.round(value)}
+      </span>
     </span>
   )
 }

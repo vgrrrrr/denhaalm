@@ -1,12 +1,19 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useParams } from 'react-router-dom'
 import { BackButton, Icon } from '../components/ui'
-import { CareOverlay, type OverlayKind } from '../components/Overlays'
-import { characterById, spriteSrc, type CharacterId } from '../data/characters'
+import { PetSprite } from '../components/PetSprite'
+import { ParticleBurst, type ParticleKind } from '../components/Particles'
+import { characterById, type CharacterId } from '../data/characters'
 import { stageOf, useHaalm } from '../store/haalm'
 
 type CareAnim = 'feed' | 'clean' | 'sleep' | 'cuddle' | null
+
+interface Floater {
+  id: number
+  text: string
+  color: string
+}
 
 export function Care() {
   const { id } = useParams()
@@ -18,43 +25,34 @@ export function Care() {
   const cuddle = useHaalm((s) => s.cuddle)
   const toggleSleep = useHaalm((s) => s.toggleSleep)
 
-  const [overlay, setOverlay] = useState<OverlayKind>(null)
   const [anim, setAnim] = useState<CareAnim>(null)
+  const [burst, setBurst] = useState<{ kind: ParticleKind; seq: number } | null>(null)
+  const [snackFly, setSnackFly] = useState(0)
   const [note, setNote] = useState('')
+  const [floaters, setFloaters] = useState<Floater[]>([])
+  const seq = useRef(0)
 
   if (!pet) return null
   const char = characterById(petId)
   const stage = stageOf(pet)
 
-  const show = (o: OverlayKind, a: CareAnim, message: string, ms = 1500) => {
-    setOverlay(o)
-    setAnim(a)
-    setNote(message)
-    setTimeout(() => {
-      setOverlay(null)
-      setAnim(null)
-    }, ms)
-    setTimeout(() => setNote(''), ms + 900)
+  const fireBurst = (kind: ParticleKind) => {
+    seq.current += 1
+    setBurst({ kind, seq: seq.current })
   }
 
-  const onFeed = () => {
-    if (pet.sleeping) return setNoteBriefly(`${char.name} is fast asleep…`)
-    if (treats < 1) return setNoteBriefly('No treats left — play a game to earn more!')
-    if (feed(petId)) show('hearts', 'feed', `${char.name} munches happily · +hunger`)
+  const addFloater = (text: string, color: string) => {
+    seq.current += 1
+    const f = { id: seq.current, text, color }
+    setFloaters((prev) => [...prev, f])
+    setTimeout(() => setFloaters((prev) => prev.filter((x) => x.id !== f.id)), 1400)
   }
-  const onClean = () => {
-    clean(petId)
-    show('bubbles', 'clean', 'Splish splash · all clean')
-  }
-  const onSleep = () => {
-    toggleSleep(petId)
-    if (!pet.sleeping) show('sleep', 'sleep', `Shh… ${char.name} is dozing off`, 1800)
-    else setNoteBriefly(`${char.name} woke up refreshed!`)
-  }
-  const onCuddle = () => {
-    if (pet.sleeping) return setNoteBriefly(`${char.name} is fast asleep…`)
-    cuddle(petId)
-    show('hearts', 'cuddle', `${char.name} loves you · +happiness`)
+
+  const play = (a: CareAnim, message: string, ms = 1400) => {
+    setAnim(a)
+    setNote(message)
+    setTimeout(() => setAnim(null), ms)
+    setTimeout(() => setNote(''), ms + 1000)
   }
 
   const setNoteBriefly = (m: string) => {
@@ -62,19 +60,55 @@ export function Care() {
     setTimeout(() => setNote(''), 2200)
   }
 
-  const characterMotion =
+  const onFeed = () => {
+    if (pet.sleeping) return setNoteBriefly(`${char.name} is fast asleep…`)
+    if (treats < 1) return setNoteBriefly('No treats left — play a game to earn more!')
+    if (feed(petId)) {
+      seq.current += 1
+      setSnackFly(seq.current)
+      setTimeout(() => {
+        fireBurst('hearts')
+        addFloater('+16', 'var(--berry)')
+      }, 620)
+      play('feed', `${char.name} munches happily`)
+    }
+  }
+  const onClean = () => {
+    clean(petId)
+    fireBurst('bubbles')
+    setTimeout(() => fireBurst('sparkles'), 900)
+    addFloater('+28', 'var(--sky)')
+    play('clean', 'Splish splash · all clean', 1800)
+  }
+  const onSleep = () => {
+    toggleSleep(petId)
+    if (!pet.sleeping) {
+      fireBurst('stars')
+      play('sleep', `Shh… ${char.name} is dozing off`, 1800)
+    } else {
+      fireBurst('sparkles')
+      setNoteBriefly(`${char.name} woke up refreshed!`)
+    }
+  }
+  const onCuddle = () => {
+    if (pet.sleeping) return setNoteBriefly(`${char.name} is fast asleep…`)
+    cuddle(petId)
+    fireBurst('hearts')
+    addFloater('+10', 'var(--meadow-dark)')
+    play('cuddle', `${char.name} loves you`)
+  }
+
+  const petMotion =
     anim === 'feed'
       ? { scale: [1, 1.025, 1] }
       : anim === 'clean'
-        ? { rotate: [0, -0.5, 0.5, 0] }
-        : anim === 'sleep'
-          ? { y: [0, 3] }
-          : anim === 'cuddle'
-            ? { scaleX: [1, 1.02, 1], scaleY: [1, 0.985, 1] }
-            : { y: [0, -2, 0] }
+        ? { rotate: [0, -1, 1, 0] }
+        : anim === 'cuddle'
+          ? { scaleX: [1, 1.03, 1], scaleY: [1, 0.98, 1] }
+          : {}
 
   return (
-    <div className="page px" style={{ position: 'relative', minHeight: '100dvh' }}>
+    <div className="page px" style={{ position: 'relative', minHeight: '100dvh', overflow: 'hidden' }}>
       {pet.sleeping && (
         <div
           style={{
@@ -111,41 +145,64 @@ export function Care() {
         {char.name} · {stage === 'baby' ? char.babySpecies : char.species}
       </p>
 
-      {/* character */}
+      {/* character on its little meadow patch */}
       <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', margin: '20px 0 8px', zIndex: 2 }}>
-        <div style={{ position: 'relative' }}>
-          <motion.img
-            src={spriteSrc(petId, stage)}
-            alt={char.name}
-            animate={characterMotion}
-            transition={
-              anim
-                ? { duration: 0.5, ease: 'easeInOut' }
-                : { duration: pet.sleeping ? 5.5 : 4.2, repeat: Infinity, ease: 'easeInOut' }
-            }
-            style={{
-              width: 'min(44vw, 185px)',
-              height: 'auto',
-              objectFit: 'contain',
-              objectPosition: 'center bottom',
-              filter: pet.sleeping ? 'brightness(0.94)' : undefined,
-            }}
+        <motion.div
+          animate={petMotion}
+          transition={{ duration: 0.55, ease: 'easeInOut' }}
+          style={{ position: 'relative', transformOrigin: '50% 100%' }}
+        >
+          <PetSprite
+            id={petId}
+            stage={stage}
+            width="min(44vw, 185px)"
+            sleeping={pet.sleeping}
+            wander={false}
           />
-          <CareOverlay kind={overlay} />
-          {pet.sleeping && !overlay && (
-            <motion.img
-              src="/haalm/ui/overlays/sleep.svg"
-              alt=""
-              animate={{ opacity: [0.5, 0.8, 0.5], y: [0, -4, 0] }}
-              transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ position: 'absolute', top: '-16%', right: '-12%', width: '44%', pointerEvents: 'none' }}
-            />
-          )}
-        </div>
+          {burst && <ParticleBurst kind={burst.kind} trigger={burst.seq} count={burst.kind === 'bubbles' ? 12 : 9} />}
+
+          {/* flying snack */}
+          <AnimatePresence>
+            {snackFly > 0 && (
+              <motion.span
+                key={snackFly}
+                initial={{ opacity: 0, x: 110, y: 130, scale: 0.7, rotate: 20 }}
+                animate={{ opacity: [0, 1, 1, 0], x: 30, y: 40, scale: [0.7, 1, 0.5], rotate: -8 }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                onAnimationComplete={() => setSnackFly(0)}
+                style={{ position: 'absolute', left: 0, top: 0, zIndex: 9 }}
+              >
+                <Icon name="apple" size={26} />
+              </motion.span>
+            )}
+          </AnimatePresence>
+
+          {/* stat floaters */}
+          {floaters.map((f) => (
+            <motion.span
+              key={f.id}
+              initial={{ opacity: 0, y: 0 }}
+              animate={{ opacity: [0, 1, 0], y: -34 }}
+              transition={{ duration: 1.3, ease: 'easeOut' }}
+              style={{
+                position: 'absolute',
+                top: '18%',
+                right: '-12%',
+                fontSize: 15,
+                fontWeight: 500,
+                color: f.color,
+                zIndex: 9,
+                pointerEvents: 'none',
+              }}
+            >
+              {f.text}
+            </motion.span>
+          ))}
+        </motion.div>
       </div>
 
       {/* feedback line */}
-      <div style={{ height: 22, textAlign: 'center' }}>
+      <div style={{ height: 22, textAlign: 'center', position: 'relative', zIndex: 2 }}>
         <AnimatePresence>
           {note && (
             <motion.span
@@ -215,7 +272,8 @@ function CareAction({
         gap: 8,
       }}
     >
-      <span
+      <motion.span
+        whileTap={{ rotate: [0, -8, 8, 0] }}
         style={{
           width: 46,
           height: 46,
@@ -227,7 +285,7 @@ function CareAction({
         }}
       >
         <Icon name={icon} size={20} />
-      </span>
+      </motion.span>
       <span style={{ fontSize: 15, fontWeight: 500 }}>{label}</span>
       <span className="muted" style={{ fontSize: 11 }}>
         {sub}

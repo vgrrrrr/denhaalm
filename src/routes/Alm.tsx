@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Icon, SoftButton, softEase } from '../components/ui'
-import { ALM_LOCATIONS, type AlmLocation } from '../data/locations'
+import { ALM_LOCATIONS, locationById, type AlmLocation } from '../data/locations'
 import { characterById } from '../data/characters'
 import { useActivePet, useHaalm } from '../store/haalm'
 
@@ -48,6 +48,61 @@ export function Alm() {
           height={1672}
           style={{ width: '100%', height: 'auto', display: 'block' }}
         />
+
+        {/* slow cloud drift across the map */}
+        {[
+          { top: '4%', dur: 110, scale: 1 },
+          { top: '48%', dur: 150, scale: 0.75 },
+        ].map((c, i) => (
+          <motion.img
+            key={`cloud-${i}`}
+            src="/haalm/ui/fx/cloud-soft.svg"
+            alt=""
+            initial={{ left: '-32%' }}
+            animate={{ left: ['-32%', '115%'] }}
+            transition={{ duration: c.dur, delay: i * -55, repeat: Infinity, ease: 'linear' }}
+            style={{
+              position: 'absolute',
+              top: c.top,
+              width: `${38 * c.scale}%`,
+              opacity: 0.55,
+              pointerEvents: 'none',
+            }}
+          />
+        ))}
+
+        {/* the active pet lives on the map at its current place */}
+        {pet && (
+          <motion.div
+            layout
+            transition={{ type: 'spring', stiffness: 80, damping: 18 }}
+            style={{
+              position: 'absolute',
+              left: `${(locationById(pet.location)?.x ?? 50) - 7}%`,
+              top: `${(locationById(pet.location)?.y ?? 50) + 4}%`,
+              width: 44,
+              height: 44,
+              borderRadius: 999,
+              background: 'var(--warm-white)',
+              border: '1px solid var(--line)',
+              boxShadow: 'var(--shadow)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 2,
+              pointerEvents: 'none',
+            }}
+          >
+            <motion.img
+              src={`/haalm/characters/${pet.id}/portrait.png`}
+              alt=""
+              animate={{ y: [0, -2, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ width: 32, height: 32, objectFit: 'contain' }}
+            />
+          </motion.div>
+        )}
+
         {ALM_LOCATIONS.map((loc) => {
           const isHere = pet?.location === loc.id
           return (

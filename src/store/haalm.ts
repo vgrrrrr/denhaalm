@@ -36,6 +36,8 @@ interface HaalmStore {
   lastDailyBonus: string
   streak: number
   games: Record<string, GameRecord>
+  /** highest level already celebrated per pet (level-up / evolution overlays) */
+  celebrated: Partial<Record<CharacterId, number>>
   soundOn: boolean
   childSafe: boolean
   notificationsOn: boolean
@@ -50,6 +52,7 @@ interface HaalmStore {
   visit: (id: CharacterId, locationId: string, boost: 'happiness' | 'energy' | 'hunger') => void
   finishGame: (gameId: string, score: number, petId: CharacterId | null) => GameReward
   claimDailyBonus: () => number
+  markCelebrated: (id: CharacterId, level: number) => void
   setSetting: (key: 'soundOn' | 'childSafe' | 'notificationsOn', value: boolean) => void
   setActivePet: (id: CharacterId) => void
   resetAll: () => void
@@ -155,6 +158,7 @@ export const useHaalm = create<HaalmStore>()(
       lastDailyBonus: '',
       streak: 0,
       games: {},
+      celebrated: {},
       soundOn: true,
       childSafe: true,
       notificationsOn: false,
@@ -168,6 +172,7 @@ export const useHaalm = create<HaalmStore>()(
             pets: { ...s.pets, [id]: newPet(id) },
             activePet: id,
             treats: s.treats + 3,
+            celebrated: { ...s.celebrated, [id]: 1 },
           }
         }),
 
@@ -309,6 +314,11 @@ export const useHaalm = create<HaalmStore>()(
         return bonus
       },
 
+      markCelebrated: (id, level) =>
+        set((s) => ({
+          celebrated: { ...s.celebrated, [id]: Math.max(s.celebrated[id] ?? 1, level) },
+        })),
+
       setSetting: (key, value) => set({ [key]: value }),
 
       setActivePet: (id) => set({ activePet: id }),
@@ -323,6 +333,7 @@ export const useHaalm = create<HaalmStore>()(
           lastDailyBonus: '',
           streak: 0,
           games: {},
+          celebrated: {},
         }),
     }),
     {

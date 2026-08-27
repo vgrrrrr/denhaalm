@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { SoftButton, softSpring } from '../components/ui'
+import { ParticleBurst } from '../components/Particles'
 import { characterById, spriteSrc, type CharacterId } from '../data/characters'
 import { useHaalm } from '../store/haalm'
 
@@ -83,6 +84,7 @@ export function Unlock() {
       </motion.span>
 
       <div style={{ position: 'relative', marginTop: 18, marginBottom: 26 }}>
+        <ParticleBurst kind="sparkles" trigger={ctaVisible ? 2 : 1} count={12} />
         <motion.img
           src={spriteSrc(char.id as CharacterId, 'baby')}
           alt={char.name}
