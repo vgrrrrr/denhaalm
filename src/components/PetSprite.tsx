@@ -115,7 +115,7 @@ export function PetSprite({
           height: '9%',
           borderRadius: '50%',
           background: 'radial-gradient(ellipse, rgba(31,31,31,0.5) 0%, rgba(31,31,31,0) 70%)',
-          zIndex: 0,
+          zIndex: -1,
         }}
       />
 
@@ -220,7 +220,7 @@ export function PetSprite({
         </motion.div>
       </motion.div>
 
-      {/* grass tuft occluder — the pet sits in the meadow */}
+      {/* grass patch the pet stands on — behind the character, not over it */}
       {withGrass && (
         <motion.img
           src="/haalm/ui/fx/grass-tuft.svg"
@@ -228,12 +228,11 @@ export function PetSprite({
           animate={{ rotate: [-0.6, 0.6, -0.6] }}
           transition={{ duration: 5.4, repeat: Infinity, ease: 'easeInOut' }}
           style={{
-            // sits low so the characters' feet stay visible on the patch
             position: 'absolute',
             bottom: '-9%',
             left: '-11%',
             width: '122%',
-            zIndex: 2,
+            zIndex: 0,
             pointerEvents: 'none',
             transformOrigin: '50% 100%',
           }}
