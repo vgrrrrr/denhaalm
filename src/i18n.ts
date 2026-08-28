@@ -61,6 +61,10 @@ const STRINGS = {
   'mood.content': { de: 'Zufrieden', en: 'Content' },
 
   /* home */
+  'stat.hunger': { de: 'Hunger', en: 'Hunger' },
+  'stat.happiness': { de: 'Glück', en: 'Happy' },
+  'stat.energy': { de: 'Energie', en: 'Energy' },
+  'stat.clean': { de: 'Sauber', en: 'Clean' },
   'home.care': { de: 'Kümmere dich um {name}', en: 'Care for {name}' },
   'home.bonus': { de: '+{n} Leckerli · Tag {d}', en: '+{n} treats · day {d}' },
 

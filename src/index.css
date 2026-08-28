@@ -29,9 +29,13 @@
   --meadow: #b8cca6;
   --meadow-dark: #8fa77d;
   --sky: #a9cbe8;
+  --sky-dark: #7fa6cc;
   --berry: #e8a2af;
+  --berry-dark: #cf7c8c;
   --lavender: #cdb9db;
+  --lavender-dark: #a98fbe;
   --honey: #f1d37a;
+  --honey-dark: #d8ac3f;
 
   --line: rgba(31, 31, 31, 0.07);
   --shadow: 0 4px 20px rgba(31, 31, 31, 0.045);

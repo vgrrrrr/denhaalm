@@ -167,16 +167,17 @@ export function Home() {
           className="glass"
           style={{
             display: 'flex',
-            justifyContent: 'space-around',
+            justifyContent: 'space-between',
             alignItems: 'center',
+            gap: 14,
             borderRadius: 999,
-            padding: '11px 18px',
+            padding: '10px 16px',
           }}
         >
-          <Stat icon="apple" value={pet.hunger} />
-          <Stat icon="heart" value={pet.happiness} />
-          <Stat icon="moon" value={pet.energy} />
-          <Stat icon="drop" value={pet.cleanliness} />
+          <Stat icon="apple" value={pet.hunger} color="var(--berry-dark)" label={t('stat.hunger')} />
+          <Stat icon="heart" value={pet.happiness} color="var(--honey-dark)" label={t('stat.happiness')} />
+          <Stat icon="moon" value={pet.energy} color="var(--lavender-dark)" label={t('stat.energy')} />
+          <Stat icon="drop" value={pet.cleanliness} color="var(--sky-dark)" label={t('stat.clean')} />
         </motion.button>
         <SoftButton onClick={() => navigate(`/care/${pet.id}`)}>{t('home.care', { name: char.name })}</SoftButton>
       </div>
@@ -184,19 +185,73 @@ export function Home() {
   )
 }
 
-function Stat({ icon, value }: { icon: string; value: number }) {
+/** ring geometry for the compact stat chips — radius 20 in a 48×48 viewBox */
+const RING_R = 20
+const RING_C = 2 * Math.PI * RING_R
+
+function Stat({
+  icon,
+  value,
+  color,
+  label,
+}: {
+  icon: string
+  value: number
+  color: string
+  label: string
+}) {
   const low = value < 35
+  const pct = Math.max(0, Math.min(100, value))
+  const offset = RING_C * (1 - pct / 100)
+
   return (
-    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <motion.span
-        animate={low ? { scale: [1, 1.18, 1] } : {}}
-        transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ display: 'flex' }}
-      >
-        <Icon name={icon} size={16} />
-      </motion.span>
-      <span style={{ fontSize: 12, fontWeight: 500, color: low ? 'var(--berry)' : undefined }}>
-        {Math.round(value)}
+    <span style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+      <span style={{ position: 'relative', width: 40, height: 40, flexShrink: 0 }}>
+        <svg width={40} height={40} viewBox="0 0 48 48" style={{ transform: 'rotate(-90deg)' }}>
+          <circle cx={24} cy={24} r={RING_R} fill="none" stroke="rgba(31,31,31,0.09)" strokeWidth={5} />
+          <motion.circle
+            cx={24}
+            cy={24}
+            r={RING_R}
+            fill="none"
+            stroke={low ? 'var(--berry)' : color}
+            strokeWidth={5}
+            strokeLinecap="round"
+            strokeDasharray={RING_C}
+            animate={{ strokeDashoffset: offset }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </svg>
+        <motion.span
+          animate={low ? { scale: [1, 1.18, 1] } : {}}
+          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color,
+          }}
+        >
+          <Icon name={icon} size={18} />
+        </motion.span>
+      </span>
+      <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: low ? 'var(--berry)' : undefined }}>
+          {Math.round(value)}
+        </span>
+        <span
+          style={{
+            fontSize: 8.5,
+            fontWeight: 600,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            color: 'rgba(31,31,31,0.48)',
+          }}
+        >
+          {label}
+        </span>
       </span>
     </span>
   )
