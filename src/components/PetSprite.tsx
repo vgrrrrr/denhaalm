@@ -28,6 +28,7 @@ export function PetSprite({
   maxWidth = 190,
   sleeping = false,
   emote = null,
+  speech = null,
   wander = true,
   withGrass = true,
   onTap,
@@ -39,6 +40,8 @@ export function PetSprite({
   sleeping?: boolean
   /** icon name shown in a thought bubble (e.g. 'apple' when hungry) */
   emote?: string | null
+  /** a spoken line shown in a speech bubble (takes over from the emote) */
+  speech?: string | null
   wander?: boolean
   withGrass?: boolean
   onTap?: () => void
@@ -116,9 +119,46 @@ export function PetSprite({
         }}
       />
 
+      {/* speech bubble — the pet talking to its human */}
+      <AnimatePresence>
+        {speech && (
+          <motion.div
+            key={speech}
+            initial={{ opacity: 0, y: 8, scale: 0.9 }}
+            animate={{ opacity: 1, y: [0, -3, 0], scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.92 }}
+            transition={{
+              opacity: { duration: 0.25 },
+              scale: { duration: 0.25 },
+              y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
+            }}
+            style={{
+              position: 'absolute',
+              bottom: '96%',
+              left: '50%',
+              translate: '-50% 0',
+              zIndex: 7,
+              width: 'max-content',
+              maxWidth: 'min(62vw, 230px)',
+              background: 'var(--warm-white)',
+              border: '1px solid var(--line)',
+              borderRadius: '18px 18px 18px 5px',
+              padding: '9px 13px',
+              boxShadow: 'var(--shadow)',
+              fontSize: 12.5,
+              lineHeight: 1.45,
+              textAlign: 'center',
+              pointerEvents: 'none',
+            }}
+          >
+            {speech}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* emote thought bubble */}
       <AnimatePresence>
-        {emote && !sleeping && (
+        {emote && !speech && !sleeping && (
           <motion.div
             initial={{ opacity: 0, y: 6, scale: 0.85 }}
             animate={{ opacity: 1, y: [0, -4, 0], scale: 1 }}

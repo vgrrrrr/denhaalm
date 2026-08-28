@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { SoftButton, softSpring } from '../components/ui'
 import { ParticleBurst } from '../components/Particles'
 import { characterById, spriteSrc, type CharacterId } from '../data/characters'
+import { pickLine } from '../data/voice'
 import { useHaalm } from '../store/haalm'
 import { useT } from '../i18n'
 
@@ -13,7 +14,9 @@ export function Unlock() {
   const unlockPet = useHaalm((s) => s.unlockPet)
   const char = characterById(id ?? 'gigi')
   const [ctaVisible, setCtaVisible] = useState(false)
-  const { t, loc } = useT()
+  const { t, loc, lang } = useT()
+  // the new friend introduces itself — a fresh line every time
+  const [hello] = useState(() => pickLine(char.id, 'unlock', lang))
 
   useEffect(() => {
     const t = setTimeout(() => setCtaVisible(true), 900)
@@ -85,8 +88,36 @@ export function Unlock() {
         {loc(char.babySpecies)}
       </motion.span>
 
-      <div style={{ position: 'relative', marginTop: 18, marginBottom: 26 }}>
+      {/* extra headroom so the greeting bubble clears the copy above */}
+      <div style={{ position: 'relative', marginTop: 64, marginBottom: 26 }}>
         <ParticleBurst kind="sparkles" trigger={ctaVisible ? 2 : 1} count={12} />
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.88 }}
+          animate={{ opacity: 1, y: [0, -3, 0], scale: 1 }}
+          transition={{
+            opacity: { delay: 1, duration: 0.35 },
+            scale: { delay: 1, duration: 0.35 },
+            y: { delay: 1.35, duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
+          }}
+          style={{
+            position: 'absolute',
+            bottom: '99%',
+            left: '50%',
+            translate: '-50% 0',
+            zIndex: 5,
+            width: 'max-content',
+            maxWidth: 'min(72vw, 260px)',
+            background: 'var(--warm-white)',
+            border: '1px solid var(--line)',
+            borderRadius: '18px 18px 18px 5px',
+            padding: '10px 14px',
+            boxShadow: 'var(--shadow)',
+            fontSize: 13,
+            lineHeight: 1.45,
+          }}
+        >
+          {hello}
+        </motion.div>
         <motion.img
           src={spriteSrc(char.id as CharacterId, 'baby')}
           alt={char.name}

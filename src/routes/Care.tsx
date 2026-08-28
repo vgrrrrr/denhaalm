@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useParams } from 'react-router-dom'
 import { BackButton, Icon } from '../components/ui'
 import { PetSprite } from '../components/PetSprite'
+import { useChatter } from '../components/useChatter'
 import { ParticleBurst, type ParticleKind } from '../components/Particles'
 import { characterById, type CharacterId } from '../data/characters'
 import { stageOf, useHaalm } from '../store/haalm'
@@ -52,6 +53,8 @@ export function Care() {
   const scrubTotal = useRef(0)
   const seq = useRef(0)
   const { t, loc } = useT()
+  // spoken reactions to care actions; no idle chatter while hands-on
+  const { speech, say } = useChatter(pet ?? null, { idle: false })
 
   if (!pet) return null
   const char = characterById(petId)
@@ -107,6 +110,7 @@ export function Care() {
         setChewing(false)
         fireBurst('hearts')
         addFloater('+16', 'var(--berry)')
+        say('feed')
       }, 1100)
       playAnim('feed', t('care.munch', { name: char.name }), 1400)
     } else {
@@ -172,6 +176,7 @@ export function Care() {
     clean(petId)
     fireBurst('sparkles')
     addFloater('+28', 'var(--sky)')
+    say('clean')
     playAnim('clean', t('care.sparkling'), 1600)
   }
 
@@ -182,6 +187,7 @@ export function Care() {
     if (pet.sleeping) {
       toggleSleep(petId)
       fireBurst('sparkles')
+      say('wake')
       setNoteBriefly(t('care.woke', { name: char.name }))
       return
     }
@@ -201,6 +207,7 @@ export function Care() {
       pointY < rect.bottom + 20
     if (hit) {
       setMode('idle')
+      say('tucked')
       toggleSleep(petId)
       fireBurst('stars')
       playAnim('sleep', t('care.tucked', { name: char.name }), 2000)
@@ -214,6 +221,7 @@ export function Care() {
     cuddle(petId)
     fireBurst('hearts')
     addFloater('+10', 'var(--meadow-dark)')
+    say('cuddle')
     playAnim('cuddle', t('care.loves', { name: char.name }))
   }
 
@@ -289,7 +297,9 @@ export function Care() {
             stage={stage}
             width="min(44vw, 185px)"
             sleeping={pet.sleeping}
+            speech={speech}
             wander={false}
+            onTap={() => mode === 'idle' && !pet.sleeping && say('tap')}
           />
           {burst && <ParticleBurst kind={burst.kind} trigger={burst.seq} count={9} />}
 

@@ -4,6 +4,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Icon, SoftButton } from '../components/ui'
 import { WorldScene, type DayPhase } from '../components/WorldScene'
 import { PetSprite } from '../components/PetSprite'
+import { useChatter } from '../components/useChatter'
 import { characterById } from '../data/characters'
 import { moodOf, stageOf, useActivePet, useHaalm, levelFromXp } from '../store/haalm'
 import { useT } from '../i18n'
@@ -37,6 +38,7 @@ export function Home() {
   const streak = useHaalm((s) => s.streak)
   const [bonus, setBonus] = useState(0)
   const { t, loc } = useT()
+  const { speech, say } = useChatter(pet)
 
   useEffect(() => {
     const b = claimDailyBonus()
@@ -80,6 +82,8 @@ export function Home() {
             maxWidth={190}
             sleeping={pet.sleeping}
             emote={emoteFor(pet)}
+            speech={speech}
+            onTap={() => say('tap')}
           />
         </div>
       </WorldScene>
