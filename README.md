@@ -51,6 +51,9 @@ texts are localized via a small dictionary in `src/i18n.ts`.
 - Every character sits on a grass meadow patch with a contact shadow; Gigi's source
   art was missing its feet entirely (they were never rendered, not a matting issue) —
   plush-style feet were synthesized programmatically from sampled body colors
+- Pets have a voice: a personal greeting on unlock, spontaneous chatter by mood
+  and time of day, and reactions to care actions — ~240 localized lines drawn
+  from a no-repeat shuffle bag per character (`src/data/voice.ts`)
 - Care feedback: flying snack, rising bubbles, sparkles, stat floaters
 - Level-up toasts and a full baby-to-grown evolution ceremony
 - The Alm map shows the active pet at its current location; clouds drift over the map
