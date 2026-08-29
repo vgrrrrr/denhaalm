@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
+import { mapPhase, worldLocationById } from '../data/almWorld'
 
 export type DayPhase = 'dawn' | 'day' | 'evening' | 'night'
 
@@ -31,6 +32,7 @@ export function WorldScene({
   phase: forcedPhase,
   grassBottom = 0,
   dimmed = false,
+  area,
 }: {
   children?: ReactNode
   phase?: DayPhase
@@ -38,9 +40,13 @@ export function WorldScene({
   grassBottom?: number
   /** e.g. while the pet sleeps */
   dimmed?: boolean
+  /** optional Alm area; without one the personal home scene is used */
+  area?: string
 }) {
   const phase = forcedPhase ?? dayPhase()
-  const night = phase === 'night'
+  const worldPhase = mapPhase(phase)
+  const night = worldPhase === 'night'
+  const background = worldLocationById(area)?.scenes[worldPhase] ?? `/haalm/environments/redesign/home-alm-${worldPhase}.jpg`
 
   const stars = useMemo(
     () =>
@@ -57,8 +63,12 @@ export function WorldScene({
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
       {/* backdrop */}
-      <img
-        src="/haalm/environments/home-meadow-390x844@3x.jpg"
+      <motion.img
+        key={background}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        src={background}
         alt=""
         style={{
           position: 'absolute',

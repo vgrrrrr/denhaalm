@@ -10,6 +10,10 @@ export type CharacterId =
   | 'haal'
   | 'beni'
 
+export type AgeStage = 'young' | 'middle' | 'adult'
+export type PortraitState = 'neutral' | 'happy' | 'sad' | 'sick' | 'tired' | 'asleep'
+export type BodyPose = 'body' | 'look-left-slight' | 'look-left-turned' | 'look-right-slight' | 'look-right-turned'
+
 export interface Character {
   id: CharacterId
   name: string
@@ -129,19 +133,23 @@ export const characterById = (id: string): Character =>
 export const characterByCode = (code: string): Character | undefined =>
   CHARACTERS.find((c) => c.code === code.trim().toUpperCase())
 
-export const spriteSrc = (id: CharacterId, stage: 'baby' | 'grown') =>
-  `/haalm/characters/${id}/${stage}.png`
+export const spriteSrc = (id: CharacterId, stage: AgeStage, pose: BodyPose = 'body') =>
+  `/haalm/characters-v1/${id}/${stage}/${pose}.png`
 
 /** characters that have dedicated pajama art for sleeping */
-export const SLEEP_SPRITES = new Set<CharacterId>(['gigi', 'elli', 'roary', 'zeddy', 'hoppy'])
+export const SLEEP_SPRITES = new Set<CharacterId>(CHARACTERS.map((character) => character.id))
 
 export const hasSleepSprite = (id: CharacterId) => SLEEP_SPRITES.has(id)
 
 /** the sprite to show right now — pajamas while sleeping, when available */
-export const displaySpriteSrc = (id: CharacterId, stage: 'baby' | 'grown', sleeping: boolean) =>
-  sleeping && hasSleepSprite(id) ? `/haalm/characters/${id}/sleep.png` : spriteSrc(id, stage)
+export const displaySpriteSrc = (id: CharacterId, stage: AgeStage, sleeping: boolean, pose: BodyPose = 'body') =>
+  sleeping && hasSleepSprite(id) ? `/haalm/characters-v1/${id}/${stage}/sleep.png` : spriteSrc(id, stage, pose)
 
-export const portraitSrc = (id: CharacterId) => `/haalm/characters/${id}/portrait.png`
+export const portraitSrc = (id: CharacterId, stage: AgeStage = 'young', state: PortraitState = 'neutral') =>
+  `/haalm/characters-v1/${id}/${stage}/portraits/${state}.png`
+
+export const iconSrc = (id: CharacterId, stage: AgeStage = 'young', state: PortraitState = 'neutral') =>
+  `/haalm/characters-v1/${id}/${stage}/icons/${state}.png`
 
 /** total roster size shown in the herd counter — matches "8 / 24 unlocked" */
 export const ROSTER_SIZE = 24

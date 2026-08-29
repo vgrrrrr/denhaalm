@@ -35,7 +35,7 @@ export function Scan() {
   return (
     <div className="page page--bare px" style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
       <div style={{ paddingTop: 20 }}>
-        <BackButton to={Object.keys(pets).length ? '/home' : '/'} />
+        <BackButton to={Object.keys(pets).length ? '/alm' : '/'} />
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 20 }}>

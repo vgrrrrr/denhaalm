@@ -8,7 +8,7 @@ import { useT } from '../i18n'
 export function Play() {
   const navigate = useNavigate()
   const records = useHaalm((s) => s.games)
-  const treats = useHaalm((s) => s.treats)
+  const coins = useHaalm((s) => s.coins ?? 0)
   const hearts = useHaalm((s) => s.hearts)
   const { t } = useT()
 
@@ -33,11 +33,11 @@ export function Play() {
             fontSize: 12,
           }}
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span aria-label={`${hearts} Herzen`} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <Icon name="heart" size={14} /> {hearts}
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Icon name="apple" size={14} /> {treats}
+          <span aria-label={t('alm.coins', { n: coins })} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <img src="/haalm/ui/runtime/icons/coin.png" alt="" width={16} height={16} /> {coins}
           </span>
         </div>
       </div>

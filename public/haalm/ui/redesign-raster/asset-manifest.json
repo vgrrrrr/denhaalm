@@ -1,0 +1,30 @@
+{
+  "package": "haalm-app-general-v2-raster",
+  "version": 2,
+  "format": "PNG",
+  "background": "transparent-alpha",
+  "sourceOfTruth": "Tiere/app_general_v2_raster",
+  "assets": {
+    "icons": ["icons/coin.png", "icons/shop.png", "icons/parent-gate.png", "icons/scan.png"],
+    "care": ["care/medicine.png", "care/wash-kit.png", "care/cuddle-pillow.png", "care/sleep-set.png"],
+    "food": ["food/feeding-bowl.png"],
+    "overlays": ["overlays/coin-burst.png", "overlays/unlock-arrival.png", "overlays/health-sparkle.png", "overlays/sickness-soft.png", "overlays/time-of-day.png"],
+    "accessories": ["accessories/gigi-scarf.png", "accessories/round-hat.png", "accessories/round-glasses.png", "accessories/soft-bow.png", "accessories/little-bag.png"],
+    "habitats": ["habitats/pond-edge.png", "habitats/tree-branch.png", "habitats/cozy-hut.png"],
+    "learning": ["learning/learning-badge.png", "learning/alphabet-card.png", "learning/color-wheel.png", "learning/sound-token.png", "learning/tracks-token.png"],
+    "games": ["games/pet-selector.png", "games/game-reward.png"],
+    "navigation": ["navigation/home.png", "navigation/play.png", "navigation/alm.png", "navigation/herd.png", "navigation/profile.png"]
+  },
+  "checks": {
+    "allHaveAlpha": true,
+    "cornersAreTransparent": true,
+    "reviewedAgainst": ["denhaalm/public/haalm/characters/gigi/portrait.png", "denhaalm/public/haalm/environments/home-meadow-390x844@3x.jpg"],
+    "checkedWith": ["view_image", "sips", "Pillow alpha/corner inspection"]
+  },
+  "integration": {
+    "target": "denhaalm/public/haalm/ui/redesign-raster/",
+    "copyAfterScreenFitReview": false,
+    "copyStatus": "mirrored-for-screen-fit-review",
+    "doNotUse": ["../app_general_v1_rejected_svg"]
+  }
+}

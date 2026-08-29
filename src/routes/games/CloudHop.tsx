@@ -164,7 +164,7 @@ function Sky({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => vo
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
         >
           <motion.img
-            src={pet ? spriteSrc(pet.id, stageOf(pet)) : spriteSrc('gigi', 'baby')}
+            src={pet ? spriteSrc(pet.id, stageOf(pet)) : spriteSrc('gigi', 'young')}
             alt=""
             animate={{ y: [0, -3, 0] }}
             transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}

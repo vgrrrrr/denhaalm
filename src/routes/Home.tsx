@@ -115,7 +115,7 @@ export function Home() {
           className="muted"
           style={{ fontSize: 12 }}
         >
-          {loc(stage === 'baby' ? char.babySpecies : char.species)} · Lv. {level} · {t(moodOf(pet))}
+          {loc(stage === 'young' ? char.babySpecies : char.species)} · Lv. {level} · {t(moodOf(pet))}
         </motion.span>
       </div>
 

@@ -1,0 +1,14 @@
+{
+  "reviewVersion": 1,
+  "targetScreens": {
+    "bottomNav": { "assets": ["navigation/home.png", "navigation/play.png", "navigation/alm.png", "navigation/herd.png", "navigation/profile.png"], "fit": "64px source rendered at 21px CSS; five equal tabs" },
+    "home": { "assets": ["habitats/pond-edge.png", "habitats/tree-branch.png", "habitats/cozy-hut.png", "overlays/time-of-day.png"], "fit": "foreground-over-existing-scene" },
+    "care": { "assets": ["food/feeding-bowl.png", "care/wash-kit.png", "care/cuddle-pillow.png", "care/sleep-set.png", "care/medicine.png", "overlays/sickness-soft.png", "overlays/health-sparkle.png"], "fit": "action-card-and-feedback" },
+    "scan": { "assets": ["icons/scan.png", "overlays/unlock-arrival.png"], "fit": "top-right-action-and-centered-arrival" },
+    "play": { "assets": ["games/pet-selector.png", "games/game-reward.png", "icons/coin.png", "overlays/coin-burst.png"], "fit": "selector-and-reward" },
+    "learning": { "assets": ["learning/alphabet-card.png", "learning/color-wheel.png", "learning/sound-token.png", "learning/tracks-token.png", "learning/learning-badge.png"], "fit": "content-card-and-feedback" },
+    "parent": { "assets": ["icons/shop.png", "icons/parent-gate.png"], "fit": "parent-only-route" },
+    "accessories": { "assets": ["accessories/gigi-scarf.png", "accessories/round-hat.png", "accessories/round-glasses.png", "accessories/soft-bow.png", "accessories/little-bag.png"], "fit": "layered-over-animal" }
+  },
+  "acceptance": ["no-visible-background-box", "no-cropped-subject", "no-text-in-image", "consistent-pastel-material", "readable-at-target-size"]
+}

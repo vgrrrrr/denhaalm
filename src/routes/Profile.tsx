@@ -8,7 +8,6 @@ import { useT } from '../i18n'
 export function Profile() {
   const navigate = useNavigate()
   const soundOn = useHaalm((s) => s.soundOn)
-  const childSafe = useHaalm((s) => s.childSafe)
   const notificationsOn = useHaalm((s) => s.notificationsOn)
   const setSetting = useHaalm((s) => s.setSetting)
   const resetAll = useHaalm((s) => s.resetAll)
@@ -36,12 +35,7 @@ export function Profile() {
           onChange={(v) => setSetting('notificationsOn', v)}
         />
         <ToggleRow icon="play" label={t('prof.sound')} value={soundOn} onChange={(v) => setSetting('soundOn', v)} />
-        <ToggleRow
-          icon="lock"
-          label={t('prof.childsafe')}
-          value={childSafe}
-          onChange={(v) => setSetting('childSafe', v)}
-        />
+        <ParentRow label={t('shop.parent')} sub={t('prof.childsafe')} onClick={() => navigate('/parent')} />
         <LanguageRow label={t('prof.language')} language={language} setLanguage={setLanguage} />
         <Row icon="drop" label={t('prof.privacy')} sub={t('prof.privacysub')} />
         <Row
@@ -101,6 +95,16 @@ export function Profile() {
         <img src="/haalm/brand/den-haalm-wordmark.png" alt="den haalm" style={{ width: 110, height: 'auto' }} />
       </div>
     </div>
+  )
+}
+
+function ParentRow({ label, sub, onClick }: { label: string; sub: string; onClick: () => void }) {
+  return (
+    <motion.button whileTap={{ scale: 0.99 }} onClick={onClick} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '15px 2px', borderBottom: '1px solid var(--line)', textAlign: 'left' }}>
+      <img src="/haalm/ui/runtime/icons/parent-gate.png" alt="" width={22} height={22} style={{ objectFit: 'contain' }} />
+      <span style={{ flex: 1 }}><span style={{ fontSize: 15, display: 'block' }}>{label}</span><span className="muted" style={{ fontSize: 11 }}>{sub}</span></span>
+      <span aria-hidden="true" style={{ opacity: 0.4 }}>›</span>
+    </motion.button>
   )
 }
 

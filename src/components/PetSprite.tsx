@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Icon } from './ui'
 import { ParticleBurst, type ParticleKind } from './Particles'
-import { displaySpriteSrc, hasSleepSprite, type CharacterId } from '../data/characters'
+import { displaySpriteSrc, hasSleepSprite, type AgeStage, type BodyPose, type CharacterId } from '../data/characters'
 
 type Behavior = 'idle' | 'hop' | 'look' | 'wiggle'
 type Reaction = { kind: ParticleKind; seq: number } | null
+export type PetCareAction = 'feed' | 'clean' | 'sleep' | 'cuddle' | null
 
 import type { TargetAndTransition } from 'framer-motion'
 
@@ -27,6 +28,8 @@ export function PetSprite({
   width,
   maxWidth = 190,
   sleeping = false,
+  bedtimeReady = false,
+  careAction = null,
   emote = null,
   speech = null,
   wander = true,
@@ -34,10 +37,14 @@ export function PetSprite({
   onTap,
 }: {
   id: CharacterId
-  stage: 'baby' | 'grown'
+  stage: AgeStage
   width: string | number
   maxWidth?: number
   sleeping?: boolean
+  /** Uses the production-v1 bedtime outfit while the blanket interaction is ready. */
+  bedtimeReady?: boolean
+  /** Short visual cue played while a care action is being completed. */
+  careAction?: PetCareAction
   /** icon name shown in a thought bubble (e.g. 'apple' when hungry) */
   emote?: string | null
   /** a spoken line shown in a speech bubble (takes over from the emote) */
@@ -51,6 +58,8 @@ export function PetSprite({
   const [strollX, setStrollX] = useState(0)
   const [facing, setFacing] = useState<1 | -1>(1)
   const [reaction, setReaction] = useState<Reaction>(null)
+  const [sleepFrame, setSleepFrame] = useState(0)
+  const reducedMotion = useReducedMotion()
   const reactionCycle = useRef(0)
 
   // spontaneous idle behaviors
@@ -88,6 +97,15 @@ export function PetSprite({
     }
   }, [sleeping, wander])
 
+  useEffect(() => {
+    if (!sleeping) {
+      return
+    }
+    if (reducedMotion) return
+    const timer = window.setInterval(() => setSleepFrame((frame) => (frame + 1) % 8), 420)
+    return () => window.clearInterval(timer)
+  }, [sleeping, reducedMotion])
+
   const tap = () => {
     const kinds: ParticleKind[] = ['hearts', 'sparkles', 'petals']
     reactionCycle.current += 1
@@ -96,6 +114,19 @@ export function PetSprite({
     setBehaviorSeq((s) => s + 1)
     onTap?.()
   }
+
+  const pose: BodyPose = behavior === 'look'
+    ? behaviorSeq % 2
+      ? facing === -1 ? 'look-left-slight' : 'look-right-slight'
+      : facing === -1 ? 'look-left-turned' : 'look-right-turned'
+    : 'body'
+  const imageSource = sleeping
+    ? reducedMotion
+      ? `/haalm/characters-v1/${id}/${stage}/sleep.png`
+      : `/haalm/characters-v1/${id}/${stage}/animations/sleep/${String(sleepFrame).padStart(2, '0')}.png`
+    : bedtimeReady
+      ? `/haalm/characters-v1/${id}/${stage}/pyjama.png`
+    : displaySpriteSrc(id, stage, false, pose)
 
   return (
     <motion.div
@@ -203,7 +234,7 @@ export function PetSprite({
           style={{ transformOrigin: '50% 100%' }}
         >
           <img
-            src={displaySpriteSrc(id, stage, sleeping)}
+            src={imageSource}
             alt={id}
             style={{
               width: '100%',
@@ -211,7 +242,7 @@ export function PetSprite({
               display: 'block',
               objectFit: 'contain',
               objectPosition: 'center bottom',
-              transform: facing === -1 ? 'scaleX(-1)' : undefined,
+              transform: pose === 'body' && facing === -1 ? 'scaleX(-1)' : undefined,
               filter: sleeping && !hasSleepSprite(id) ? 'brightness(0.94)' : undefined,
               pointerEvents: 'none',
             }}
@@ -220,18 +251,52 @@ export function PetSprite({
         </motion.div>
       </motion.div>
 
-      {/* grass patch the pet stands on — behind the character, not over it */}
+      {/* Small, tactile care cues sit over the existing raster character so
+          Alm actions feel immediate without replacing the character art. */}
+      <AnimatePresence initial={false}>
+        {careAction && careAction !== 'sleep' && (
+          <motion.img
+            key={careAction}
+            src={careAction === 'feed' ? '/haalm/ui/runtime/food/feeding-bowl.png' : careAction === 'clean' ? '/haalm/ui/runtime/care/wash-kit.png' : '/haalm/ui/runtime/care/cuddle-pillow.png'}
+            alt=""
+            initial={{ opacity: 0, scale: 0.72, x: careAction === 'clean' ? 18 : -18, y: 10, rotate: -8 }}
+            animate={
+              careAction === 'clean'
+                ? { opacity: [0, 1, 1, 0], scale: [0.72, 1, 1, 0.76], x: [18, -14, 14, 24], y: [10, -2, 4, 10], rotate: [8, -9, 10, 12] }
+                : careAction === 'feed'
+                  ? { opacity: [0, 1, 1, 0], scale: [0.72, 1, 1, 0.8], x: [-18, 0, 3, 8], y: [18, -2, 3, 14], rotate: [-8, 0, -5, 8] }
+                  : { opacity: [0, 1, 1, 0], scale: [0.72, 1, 1, 0.82], x: [-20, 18, -14, 20], y: [3, -4, 2, 4], rotate: [-8, 8, -6, 8] }
+            }
+            transition={{ duration: careAction === 'clean' ? 1.45 : 1.15, ease: 'easeInOut', times: [0, 0.16, 0.78, 1] }}
+            style={{ position: 'absolute', left: '50%', top: careAction === 'clean' ? '30%' : '42%', width: careAction === 'clean' ? '38%' : '34%', height: 'auto', translate: '-50% 0', zIndex: 6, pointerEvents: 'none', filter: 'drop-shadow(0 4px 5px rgba(31,31,31,0.16))' }}
+          />
+        )}
+        {careAction === 'sleep' && (
+          <motion.div
+            key="sleep-cue"
+            initial={{ opacity: 0, y: 8, scale: 0.85 }}
+            animate={{ opacity: [0, 1, 1, 0], y: [8, -2, -4, -10], scale: [0.85, 1, 1.04, 1.1] }}
+            transition={{ duration: 1.1, ease: 'easeOut', times: [0, 0.18, 0.76, 1] }}
+            style={{ position: 'absolute', top: '-8%', right: '-5%', zIndex: 7, pointerEvents: 'none', fontSize: 18, color: 'var(--lavender)' }}
+          >
+            ✦ z
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightweight ground contact; no extra image request for tiny scenery. */}
       {withGrass && (
-        <motion.img
-          src="/haalm/ui/fx/grass-tuft.svg"
-          alt=""
-          animate={{ rotate: [-0.6, 0.6, -0.6] }}
+        <motion.div
+          animate={{ scaleX: [1, 1.025, 1] }}
           transition={{ duration: 5.4, repeat: Infinity, ease: 'easeInOut' }}
           style={{
             position: 'absolute',
-            bottom: '-9%',
-            left: '-11%',
-            width: '122%',
+            bottom: '-2%',
+            left: '7%',
+            width: '86%',
+            height: '12%',
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse, rgba(184,204,166,0.46) 0%, rgba(184,204,166,0) 72%)',
             zIndex: 0,
             pointerEvents: 'none',
             transformOrigin: '50% 100%',
@@ -239,34 +304,10 @@ export function PetSprite({
         />
       )}
 
-      {/* tucked-in blanket over the sleeping pet */}
+      {/* Raster bedtime cue complements the production-v1 sleep frames. */}
       {sleeping && (
         <motion.img
-          src="/haalm/ui/fx/blanket.svg"
-          alt=""
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: [0, 1.5, 0] }}
-          transition={{
-            opacity: { duration: 0.4 },
-            y: { duration: 5.5, repeat: Infinity, ease: 'easeInOut' },
-          }}
-          style={{
-            position: 'absolute',
-            bottom: '-3%',
-            left: '-7%',
-            width: '114%',
-            height: '48%',
-            zIndex: 3,
-            pointerEvents: 'none',
-            filter: 'drop-shadow(0 -2px 6px rgba(31,31,31,0.08))',
-          }}
-        />
-      )}
-
-      {/* sleep zzz */}
-      {sleeping && (
-        <motion.img
-          src="/haalm/ui/overlays/sleep.svg"
+          src="/haalm/ui/runtime/care/sleep-set.png"
           alt=""
           animate={{ opacity: [0.5, 0.8, 0.5], y: [0, -4, 0] }}
           transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}

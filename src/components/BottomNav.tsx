@@ -1,12 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Icon } from './ui'
 import { useT, type StringKey } from '../i18n'
 
 const TABS: { to: string; labelKey: StringKey; icon: string }[] = [
-  { to: '/home', labelKey: 'nav.home', icon: 'home' },
+  { to: '/alm', labelKey: 'nav.alm', icon: 'alm' },
   { to: '/play', labelKey: 'nav.play', icon: 'play' },
-  { to: '/alm', labelKey: 'nav.alm', icon: 'map' },
   { to: '/herd', labelKey: 'nav.herd', icon: 'herd' },
   { to: '/profile', labelKey: 'nav.profile', icon: 'profile' },
 ]
@@ -51,7 +49,7 @@ export function BottomNav() {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 3,
+              gap: 1,
               textDecoration: 'none',
               color: active ? 'var(--graphite)' : 'var(--muted)',
               position: 'relative',
@@ -73,12 +71,23 @@ export function BottomNav() {
               />
             )}
             <span style={{ position: 'relative', display: 'flex' }}>
-              <Icon name={tab.icon} size={21} faded={!active} />
+              <img
+                src={`/haalm/ui/runtime/navigation/${tab.icon}.png`}
+                alt=""
+                width={33}
+                height={33}
+                style={{
+                  display: 'block',
+                  objectFit: 'contain',
+                  opacity: active ? 1 : 0.42,
+                }}
+              />
             </span>
             <span
               style={{
                 position: 'relative',
                 fontSize: 10.5,
+                lineHeight: 1,
                 fontWeight: active ? 500 : 400,
                 letterSpacing: '0.01em',
               }}

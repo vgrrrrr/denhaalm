@@ -220,7 +220,7 @@ function Track({ onScore, onEnd }: { onScore: (s: number) => void; onEnd: () => 
         }}
       >
         <img
-          src={pet ? spriteSrc(pet.id, stageOf(pet)) : spriteSrc('gigi', 'baby')}
+          src={pet ? spriteSrc(pet.id, stageOf(pet)) : spriteSrc('gigi', 'young')}
           alt=""
           style={{
             height: 68,

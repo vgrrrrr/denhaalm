@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from '../components/ui'
-import { CHARACTERS, portraitSrc, ROSTER_SIZE } from '../data/characters'
-import { levelFromXp, useHaalm } from '../store/haalm'
+import { CHARACTERS, iconSrc, ROSTER_SIZE } from '../data/characters'
+import { levelFromXp, portraitStateOf, stageOf, useHaalm } from '../store/haalm'
 import { useT } from '../i18n'
 
 export function Herd() {
@@ -40,7 +40,7 @@ export function Herd() {
               transition={{ delay: i * 0.04, duration: 0.26 }}
               whileTap={unlocked ? { scale: 0.97 } : undefined}
               onClick={
-                unlocked ? () => navigate(`/pet/${char.id}`) : () => navigate('/scan')
+                unlocked ? () => navigate(`/pet/${char.id}`) : () => navigate('/shop')
               }
               style={{
                 background: 'var(--warm-white)',
@@ -54,18 +54,32 @@ export function Herd() {
                 opacity: unlocked ? 1 : 0.55,
               }}
             >
-              <motion.img
-                src={portraitSrc(char.id)}
-                alt={char.name}
-                animate={unlocked ? { y: [0, -2, 0], rotate: [0, 1.2, 0, -1.2, 0] } : {}}
-                transition={{ duration: 4.6 + i * 0.35, repeat: Infinity, ease: 'easeInOut' }}
+              <span
                 style={{
-                  width: 62,
-                  height: 62,
-                  objectFit: 'contain',
-                  filter: unlocked ? undefined : 'grayscale(1) opacity(0.25)',
+                  width: 68,
+                  height: 68,
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: unlocked ? char.accent : 'rgba(31,31,31,0.06)',
+                  border: '2px solid rgba(255,255,255,0.78)',
+                  boxShadow: 'inset 0 0 0 1px rgba(31,31,31,0.05)',
                 }}
-              />
+              >
+                <motion.img
+                  src={pet ? iconSrc(char.id, stageOf(pet), portraitStateOf(pet)) : iconSrc(char.id)}
+                  alt={char.name}
+                  animate={unlocked ? { y: [0, -2, 0], rotate: [0, 1.2, 0, -1.2, 0] } : {}}
+                  transition={{ duration: 4.6 + i * 0.35, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{
+                    width: 58,
+                    height: 58,
+                    objectFit: 'contain',
+                    filter: unlocked ? undefined : 'grayscale(1) opacity(0.25)',
+                  }}
+                />
+              </span>
               {unlocked ? (
                 <>
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{char.name}</span>

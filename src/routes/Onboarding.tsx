@@ -9,7 +9,6 @@ import { useT } from '../i18n'
 export function Onboarding() {
   const navigate = useNavigate()
   const completeOnboarding = useHaalm((s) => s.completeOnboarding)
-  const hasPets = useHaalm((s) => Object.keys(s.pets).length > 0)
   const { t } = useT()
 
   return (
@@ -34,6 +33,9 @@ export function Onboarding() {
         >
           {t('onb.tagline')}
         </p>
+        <p className="muted" style={{ fontSize: 12, textAlign: 'center', marginTop: -4 }}>
+          {t('onb.starters')}
+        </p>
       </motion.div>
 
       {/* the world, with Gigi living inside it */}
@@ -56,7 +58,7 @@ export function Onboarding() {
               zIndex: 2,
             }}
           >
-            <PetSprite id="gigi" stage="baby" width="38vw" maxWidth={168} wander={false} />
+            <PetSprite id="gigi" stage="young" width="38vw" maxWidth={168} wander={false} />
           </div>
         </WorldScene>
         <div
@@ -87,7 +89,7 @@ export function Onboarding() {
         <SoftButton
           onClick={() => {
             completeOnboarding()
-            navigate('/scan')
+            navigate('/alm')
           }}
         >
           {t('onb.start')}
@@ -96,7 +98,7 @@ export function Onboarding() {
           variant="ghost"
           onClick={() => {
             completeOnboarding()
-            navigate(hasPets ? '/home' : '/scan')
+            navigate('/alm')
           }}
         >
           {t('onb.already')}

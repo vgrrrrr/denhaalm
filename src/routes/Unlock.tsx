@@ -25,7 +25,7 @@ export function Unlock() {
 
   const welcome = () => {
     unlockPet(char.id as CharacterId)
-    navigate('/home')
+    navigate('/alm')
   }
 
   return (
@@ -47,7 +47,7 @@ export function Unlock() {
       }}
     >
       <motion.img
-        src="/haalm/ui/overlays/confetti.svg"
+        src="/haalm/ui/runtime/overlays/unlock-arrival.png"
         alt=""
         initial={{ opacity: 0, scale: 0.92 }}
         animate={{ opacity: 0.85, scale: 1.04 }}
@@ -119,7 +119,7 @@ export function Unlock() {
           {hello}
         </motion.div>
         <motion.img
-          src={spriteSrc(char.id as CharacterId, 'baby')}
+          src={spriteSrc(char.id as CharacterId, 'young')}
           alt={char.name}
           initial={{ scale: 0.88, opacity: 0 }}
           animate={{ scale: [0.88, 1.03, 1], opacity: 1 }}
@@ -132,7 +132,7 @@ export function Unlock() {
           }}
         />
         <motion.img
-          src="/haalm/ui/overlays/hearts.svg"
+          src="/haalm/ui/runtime/overlays/health-sparkle.png"
           alt=""
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: [0, 0.4, 0], scale: 1.05 }}

@@ -1,0 +1,104 @@
+{
+  "package": "haalm-alm-map-v2",
+  "version": 2,
+  "master": {
+    "id": "alm-map-v2",
+    "runtimeFiles": {
+      "day": "/haalm/environments/redesign/map-v2/alm-map-v2-day.jpg",
+      "evening": "/haalm/environments/redesign/map-v2/alm-map-v2-evening.jpg",
+      "night": "/haalm/environments/redesign/map-v2/alm-map-v2-night.jpg"
+    },
+    "dimensions": {
+      "desktop": { "width": 941, "height": 1672 },
+      "mobile": { "width": 1170, "height": 2532 }
+    }
+  },
+  "transition": {
+    "zoomFrom": 1,
+    "zoomTo": 2.6,
+    "durationMs": 520,
+    "crossfadeMs": 240,
+    "easing": "cubic-bezier(0.22, 0.8, 0.24, 1)",
+    "origin": "location.focus"
+  },
+  "locations": [
+    {
+      "id": "cloud-peak",
+      "focus": { "x": 49, "y": 13 },
+      "mapRect": { "x": 0.02, "y": 0.00, "w": 0.55, "h": 0.31 },
+      "detailRect": { "x": 0, "y": 0, "w": 1, "h": 1 },
+      "landmarkAnchors": ["snow-cloud-peak", "summit-path", "lower-meadow"],
+      "scenes": {
+        "day": "/haalm/environments/redesign/map-v2/scenes/cloud-peak-day.jpg",
+        "evening": "/haalm/environments/redesign/map-v2/scenes/cloud-peak-evening.jpg",
+        "night": "/haalm/environments/redesign/map-v2/scenes/cloud-peak-night.jpg"
+      },
+      "hotspotStates": ["neutral", "focus", "active", "locked", "new"]
+    },
+    {
+      "id": "mountain-trail",
+      "focus": { "x": 52, "y": 29 },
+      "mapRect": { "x": 0.13, "y": 0.12, "w": 0.72, "h": 0.34 },
+      "detailRect": { "x": 0, "y": 0, "w": 1, "h": 1 },
+      "landmarkAnchors": ["switchback-path", "stone-terrace", "ridge-trees"],
+      "scenes": {
+        "day": "/haalm/environments/redesign/map-v2/scenes/mountain-trail-day.jpg",
+        "evening": "/haalm/environments/redesign/map-v2/scenes/mountain-trail-evening.jpg",
+        "night": "/haalm/environments/redesign/map-v2/scenes/mountain-trail-night.jpg"
+      },
+      "hotspotStates": ["neutral", "focus", "active", "locked", "new"]
+    },
+    {
+      "id": "berry-forest",
+      "focus": { "x": 28, "y": 44 },
+      "mapRect": { "x": 0.00, "y": 0.27, "w": 0.53, "h": 0.36 },
+      "detailRect": { "x": 0, "y": 0, "w": 1, "h": 1 },
+      "landmarkAnchors": ["berry-grove", "pine-cluster", "forest-clearing"],
+      "scenes": {
+        "day": "/haalm/environments/redesign/map-v2/scenes/berry-forest-day.jpg",
+        "evening": "/haalm/environments/redesign/map-v2/scenes/berry-forest-evening.jpg",
+        "night": "/haalm/environments/redesign/map-v2/scenes/berry-forest-night.jpg"
+      },
+      "hotspotStates": ["neutral", "focus", "active", "locked", "new"]
+    },
+    {
+      "id": "flower-hill",
+      "focus": { "x": 67, "y": 53 },
+      "mapRect": { "x": 0.46, "y": 0.34, "w": 0.54, "h": 0.36 },
+      "detailRect": { "x": 0, "y": 0, "w": 1, "h": 1 },
+      "landmarkAnchors": ["flower-meadow", "hill-path", "east-pines"],
+      "scenes": {
+        "day": "/haalm/environments/redesign/map-v2/scenes/flower-hill-day.jpg",
+        "evening": "/haalm/environments/redesign/map-v2/scenes/flower-hill-evening.jpg",
+        "night": "/haalm/environments/redesign/map-v2/scenes/flower-hill-night.jpg"
+      },
+      "hotspotStates": ["neutral", "focus", "active", "locked", "new"]
+    },
+    {
+      "id": "cozy-cabin",
+      "focus": { "x": 37, "y": 69 },
+      "mapRect": { "x": 0.08, "y": 0.54, "w": 0.48, "h": 0.32 },
+      "detailRect": { "x": 0, "y": 0, "w": 1, "h": 1 },
+      "landmarkAnchors": ["cabin-roof", "front-door", "fence-and-path"],
+      "scenes": {
+        "day": "/haalm/environments/redesign/map-v2/scenes/cozy-cabin-day.jpg",
+        "evening": "/haalm/environments/redesign/map-v2/scenes/cozy-cabin-evening.jpg",
+        "night": "/haalm/environments/redesign/map-v2/scenes/cozy-cabin-night.jpg"
+      },
+      "hotspotStates": ["neutral", "focus", "active", "locked", "new"]
+    },
+    {
+      "id": "pond",
+      "focus": { "x": 62, "y": 79 },
+      "mapRect": { "x": 0.40, "y": 0.64, "w": 0.58, "h": 0.35 },
+      "detailRect": { "x": 0, "y": 0, "w": 1, "h": 1 },
+      "landmarkAnchors": ["pond-contour", "lily-pads", "stream-bridge"],
+      "scenes": {
+        "day": "/haalm/environments/redesign/map-v2/scenes/pond-day.jpg",
+        "evening": "/haalm/environments/redesign/map-v2/scenes/pond-evening.jpg",
+        "night": "/haalm/environments/redesign/map-v2/scenes/pond-night.jpg"
+      },
+      "hotspotStates": ["neutral", "focus", "active", "locked", "new"]
+    }
+  ]
+}

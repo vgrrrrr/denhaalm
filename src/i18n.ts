@@ -11,7 +11,7 @@ const STRINGS = {
   /* navigation */
   'nav.home': { de: 'Zuhause', en: 'Home' },
   'nav.play': { de: 'Spielen', en: 'Play' },
-  'nav.alm': { de: 'Alm', en: 'Alm' },
+  'nav.alm': { de: 'Halm', en: 'Halm' },
   'nav.herd': { de: 'Herde', en: 'Herd' },
   'nav.profile': { de: 'Profil', en: 'Profile' },
 
@@ -21,6 +21,7 @@ const STRINGS = {
     de: 'Ein gemütliches Alm-Zuhause für deine Haalm-Tiere.',
     en: 'A cozy alpine home for your Haalm animals.',
   },
+  'onb.starters': { de: 'Zwei Freunde warten schon auf dich.', en: 'Two friends are already waiting for you.' },
   'onb.start': { de: 'Starte dein Abenteuer', en: 'Start your adventure' },
   'onb.already': { de: 'Ich habe schon einen Haalm', en: 'I already have a Haalm' },
 
@@ -53,6 +54,8 @@ const STRINGS = {
 
   /* moods */
   'mood.sleeping': { de: 'Schläft', en: 'Sleeping' },
+  'mood.sick': { de: 'Braucht Medizin', en: 'Needs medicine' },
+  'mood.recovering': { de: 'Erholt sich', en: 'Recovering' },
   'mood.hungry': { de: 'Hungrig', en: 'Hungry' },
   'mood.sleepy': { de: 'Müde', en: 'Sleepy' },
   'mood.bath': { de: 'Braucht ein Bad', en: 'Needs a bath' },
@@ -69,7 +72,7 @@ const STRINGS = {
   'home.bonus': { de: '+{n} Leckerli · Tag {d}', en: '+{n} treats · day {d}' },
 
   /* pet detail */
-  'pet.bringhome': { de: 'Nach Hause holen', en: 'Bring home' },
+  'pet.bringhome': { de: 'Zur Alm rufen', en: 'Call to the Alm' },
   'pet.notyet': { de: 'Dieser Freund ist noch nicht eingezogen.', en: 'This friend hasn’t moved in yet.' },
   'pet.growsat': { de: 'Wird groß mit Lv. {n}', en: 'Grows up at Lv. {n}' },
   'pet.grown': { de: 'Ganz erwachsen', en: 'All grown up' },
@@ -85,11 +88,17 @@ const STRINGS = {
   'pet.mood': { de: 'Stimmung', en: 'Mood' },
   'pet.care': { de: 'Pflegen', en: 'Care' },
   'pet.play': { de: 'Spielen', en: 'Play' },
+  'pet.age.young': { de: 'Jungtier', en: 'Young' },
+  'pet.age.middle': { de: 'Heranwachsend', en: 'Growing' },
+  'pet.age.adult': { de: 'Ausgewachsen', en: 'Adult' },
 
   /* care */
   'care.title': { de: 'Wie kümmern wir uns?', en: 'How can we take care?' },
   'care.treats': { de: '{n} Leckerli', en: '{n} treats' },
   'care.feed': { de: 'Füttern', en: 'Feed' },
+  'care.buyfood': { de: 'Futter kaufen', en: 'Buy food' },
+  'care.foodprice': { de: '{n} Münzen · danach füttern', en: '{n} coins · then feed' },
+  'care.foodbought': { de: 'Futter für {n} Münzen gekauft. Tippe jetzt auf Füttern.', en: 'Food bought for {n} coins. Tap Feed now.' },
   'care.feedsub': { de: '{n} Leckerli übrig', en: '{n} treats left' },
   'care.cleanaction': { de: 'Waschen', en: 'Clean' },
   'care.cleansub': { de: 'Schaumbad', en: 'Bubble bath' },
@@ -106,11 +115,12 @@ const STRINGS = {
   'care.loves': { de: '{name} hat dich lieb', en: '{name} loves you' },
   'care.asleep': { de: '{name} schläft tief und fest…', en: '{name} is fast asleep…' },
   'care.notreats': {
-    de: 'Keine Leckerli mehr — spiel ein Spiel, um neue zu verdienen!',
-    en: 'No treats left — play a game to earn more!',
+    de: 'Kein Futter mehr — erspiele Münzen und hol Nachschub im Shop!',
+    en: 'No food left — earn coins and top up in the shop!',
   },
 
   'care.dragfeed': { de: 'Zieh den Snack zu {name}!', en: 'Drag the snack to {name}!' },
+  'care.dragwash': { de: 'Zieh den Schwamm zu {name}!', en: 'Drag the sponge to {name}!' },
   'care.scrubhint': { de: 'Reibe sanft über {name}!', en: 'Gently scrub {name}!' },
   'care.cancel': { de: 'Abbrechen', en: 'Cancel' },
   'care.dragblanket': { de: 'Zieh die Decke über {name}!', en: 'Drag the blanket over {name}!' },
@@ -119,13 +129,15 @@ const STRINGS = {
 
   /* play */
   'play.title': { de: 'Spielt zusammen!', en: 'Play together!' },
-  'play.sub1': { de: 'Verdiene Herzen & Leckerli', en: 'Earn hearts & treats' },
+  'play.sub1': { de: 'Verdiene Münzen & Herzen', en: 'Earn coins & hearts' },
   'play.sub2': { de: 'beim Spielen.', en: 'by playing games.' },
   'play.new': { de: 'Neu!', en: 'New!' },
   'play.best': { de: 'Rekord {n}', en: 'Best {n}' },
 
   /* games */
   'game.letsplay': { de: 'Los geht’s', en: 'Let’s play' },
+  'game.choosepet': { de: 'Wer spielt heute?', en: 'Who is playing today?' },
+  'game.nohealthypet': { de: 'Deine Haalms brauchen zuerst Medizin und Ruhe.', en: 'Your Haalms need medicine and rest first.' },
   'game.newbest': { de: 'Neuer Rekord!', en: 'New best!' },
   'game.wellplayed': { de: 'Gut gespielt!', en: 'Well played!' },
   'game.score': { de: 'Punkte {n}', en: 'Score {n}' },
@@ -159,12 +171,18 @@ const STRINGS = {
   /* herd */
   'herd.title': { de: 'Meine Herde', en: 'My Herd' },
   'herd.unlocked': { de: '{a} / {b} freigeschaltet', en: '{a} / {b} unlocked' },
-  'herd.scantounlock': { de: 'Scannen zum Freischalten', en: 'Scan to unlock' },
+  'herd.scantounlock': { de: 'Im Shop oder per Code', en: 'Shop or code' },
   'herd.soon': { de: 'Bald verfügbar', en: 'Coming soon' },
 
   /* alm */
   'alm.title': { de: 'Die Haalm', en: 'The Haalm' },
-  'alm.sub': { de: 'Entdecke schöne Orte.', en: 'Explore and discover fun places.' },
+  'alm.sub': { de: 'Deine Tiere leben hier. Entdecke ihre Lieblingsplätze.', en: 'Your animals live here. Explore their favourite places.' },
+  'alm.scan': { de: 'Neues Tier per QR-Code einziehen lassen', en: 'Bring in a new animal with a QR code' },
+  'alm.coins': { de: '{n} Münzen', en: '{n} coins' },
+  'alm.food': { de: '{n} Futter', en: '{n} food' },
+  'alm.petmarker': { de: '{name} bei {place} öffnen', en: 'Open {name} at {place}' },
+  'alm.learn': { de: 'Wissen entdecken', en: 'Discover a fact' },
+  'alm.learnfact': { de: '{name} lebt gern bei {place} und mag {snack}.', en: '{name} loves living near {place} and enjoys {snack}.' },
   'alm.visit': { de: 'Besuchen', en: 'Visit' },
   'alm.visitwith': { de: 'Mit {name} besuchen', en: 'Visit with {name}' },
   'alm.offto': { de: '{name} ist unterwegs zu {place}!', en: '{name} is off to {place}!' },
@@ -172,10 +190,33 @@ const STRINGS = {
   'alm.lifts.energy': { de: 'Ein Besuch bringt neue Energie.', en: 'A visit lifts energy.' },
   'alm.lifts.hunger': { de: 'Ein Besuch macht Appetit.', en: 'A visit lifts appetite.' },
 
+  /* shop */
+  'shop.title': { de: 'Kleine Alm-Schätze', en: 'Little Alm treasures' },
+  'shop.sub': { de: 'Gib deine Münzen für Futter und Lieblingsstücke aus.', en: 'Spend your coins on food and favourite things.' },
+  'shop.food': { de: 'Futter auffüllen', en: 'Top up food' },
+  'shop.foodbought': { de: 'Ein Futter ist bereit!', en: 'A food treat is ready!' },
+  'shop.medicine': { de: 'Sanfte Medizin', en: 'Gentle medicine' },
+  'shop.medicinecount': { de: '{n} im Beutel', en: '{n} in your bag' },
+  'shop.medicinebought': { de: 'Medizin ist jetzt im Beutel.', en: 'Medicine added to your bag.' },
+  'shop.accessories': { de: 'Accessoires', en: 'Accessories' },
+  'shop.forpet': { de: 'Für {name}', en: 'For {name}' },
+  'shop.choosepet': { de: 'Wähle zuerst ein Tier in der Herde.', en: 'Choose an animal in the herd first.' },
+  'shop.wear': { de: 'Anziehen', en: 'Wear' },
+  'shop.equipped': { de: 'An', en: 'On' },
+  'shop.removed': { de: 'Abgelegt', en: 'Removed' },
+  'shop.notenough': { de: 'Dafür fehlen noch Münzen.', en: 'You need a few more coins.' },
+  'shop.coinsShort': { de: 'Münzen', en: 'coins' },
+  'shop.parent': { de: 'Elternbereich', en: 'Parent area' },
+  'shop.animals': { de: 'Neue Freunde', en: 'New friends' },
+  'shop.animalsSub': { de: 'Mit Münzen einziehen lassen oder den Produktcode scannen.', en: 'Welcome them with coins or scan a product code.' },
+  'shop.animalBought': { de: '{name} zieht auf der Alm ein!', en: '{name} is moving into the Alm!' },
+  'shop.parentHint': { de: 'Der geschützte Elternbereich kommt als Nächstes.', en: 'The protected parent area comes next.' },
+
   /* celebrations */
   'cele.reached': { de: '{name} hat Lv. {n} erreicht!', en: '{name} reached Lv. {n}!' },
   'cele.something': { de: 'etwas Wunderbares ist passiert…', en: 'something wonderful happened…' },
   'cele.grewup': { de: '{name} ist groß geworden!', en: '{name} grew up!' },
+  'cele.grewstage': { de: '{name} ist ein Stück gewachsen!', en: '{name} has grown!' },
   'cele.body': {
     de: 'All deine Liebe und Fürsorge — {name} ist jetzt erwachsen.',
     en: 'All your love and care made {name} all grown up.',

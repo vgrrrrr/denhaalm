@@ -5,12 +5,14 @@ import { BackButton, Icon } from '../components/ui'
 import { PetSprite } from '../components/PetSprite'
 import { useChatter } from '../components/useChatter'
 import { ParticleBurst, type ParticleKind } from '../components/Particles'
+import { HealthCarePanel } from '../components/HealthCarePanel'
+import { MEDICINE_PRICE } from '../data/economy'
 import { characterById, type CharacterId } from '../data/characters'
 import { stageOf, useHaalm } from '../store/haalm'
 import { useT } from '../i18n'
 
 type CareAnim = 'feed' | 'clean' | 'sleep' | 'cuddle' | null
-type CareMode = 'idle' | 'feeding' | 'scrubbing' | 'tucking'
+type CareMode = 'idle' | 'feeding' | 'scrubbing' | 'sleeping'
 
 interface Floater {
   id: number
@@ -36,6 +38,11 @@ export function Care() {
   const clean = useHaalm((s) => s.clean)
   const cuddle = useHaalm((s) => s.cuddle)
   const toggleSleep = useHaalm((s) => s.toggleSleep)
+  const medicine = useHaalm((s) => s.medicine ?? 0)
+  const coins = useHaalm((s) => s.coins ?? 0)
+  const buyMedicine = useHaalm((s) => s.buyMedicine)
+  const healPet = useHaalm((s) => s.healPet)
+  const language = useHaalm((s) => s.language)
 
   const [mode, setMode] = useState<CareMode>('idle')
   const [anim, setAnim] = useState<CareAnim>(null)
@@ -57,6 +64,24 @@ export function Care() {
   const { speech, say } = useChatter(pet ?? null, { idle: false })
 
   if (!pet) return null
+  if (pet.health !== 'healthy') {
+    return (
+      <div className="page px" style={{ paddingTop: 20 }}>
+        <BackButton to={`/pet/${pet.id}`} />
+        <div style={{ marginTop: 28 }}>
+          <HealthCarePanel
+            health={pet.health}
+            medicineCount={medicine}
+            medicinePrice={MEDICINE_PRICE}
+            canAfford={coins >= MEDICINE_PRICE}
+            onBuyMedicine={buyMedicine}
+            onHeal={() => healPet(pet.id)}
+            language={language}
+          />
+        </div>
+      </div>
+    )
+  }
   const char = characterById(petId)
   const stage = stageOf(pet)
 
@@ -191,29 +216,18 @@ export function Care() {
       setNoteBriefly(t('care.woke', { name: char.name }))
       return
     }
-    // tucking in: drag the blanket over the pet
-    setDragKey((k) => k + 1)
-    setMode('tucking')
-    setNote(t('care.dragblanket', { name: char.name }))
-  }
-
-  const onBlanketDragEnd = (pointX: number, pointY: number) => {
-    const rect = petRef.current?.getBoundingClientRect()
-    const hit =
-      rect &&
-      pointX > rect.left - 20 &&
-      pointX < rect.right + 20 &&
-      pointY > rect.top - 20 &&
-      pointY < rect.bottom + 20
-    if (hit) {
-      setMode('idle')
-      say('tucked')
+    // Keep bedtime light: the production-v1 pyjama sprite appears briefly,
+    // then the pet settles into its regular sleep frames.
+    setMode('sleeping')
+    playAnim('sleep', t('care.dozing', { name: char.name }), 1100)
+    window.setTimeout(() => {
       toggleSleep(petId)
       fireBurst('stars')
-      playAnim('sleep', t('care.tucked', { name: char.name }), 2000)
-    } else {
-      setDragKey((k) => k + 1)
-    }
+      say('tucked')
+      setMode('idle')
+      setNote(t('care.tucked', { name: char.name }))
+      window.setTimeout(() => setNote(''), 1500)
+    }, 820)
   }
   const onCuddle = () => {
     if (mode !== 'idle') return
@@ -277,7 +291,7 @@ export function Care() {
 
       <h1 style={{ fontSize: 26, textAlign: 'center', marginTop: 12 }}>{t('care.title')}</h1>
       <p className="muted" style={{ fontSize: 13, textAlign: 'center', marginTop: 6 }}>
-        {char.name} · {loc(stage === 'baby' ? char.babySpecies : char.species)}
+        {char.name} · {loc(stage === 'young' ? char.babySpecies : char.species)}
       </p>
 
       {/* character on its little meadow patch */}
@@ -297,6 +311,8 @@ export function Care() {
             stage={stage}
             width="min(44vw, 185px)"
             sleeping={pet.sleeping}
+            bedtimeReady={mode === 'sleeping'}
+            careAction={anim}
             speech={speech}
             wander={false}
             onTap={() => mode === 'idle' && !pet.sleeping && say('tap')}
@@ -422,47 +438,8 @@ export function Care() {
               transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
               style={{ display: 'flex' }}
             >
-              <img src="/haalm/ui/fx/berry.svg" alt="" style={{ width: 34, height: 38 }} />
+              <img src="/haalm/ui/runtime/food/feeding-bowl.png" alt="" style={{ width: 42, height: 42, objectFit: 'contain' }} />
             </motion.span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* draggable blanket */}
-      <AnimatePresence>
-        {mode === 'tucking' && (
-          <motion.div
-            key={`blanket-${dragKey}`}
-            drag
-            dragMomentum={false}
-            whileDrag={{ scale: 1.08, rotate: -3 }}
-            onDragEnd={(_e, info) => onBlanketDragEnd(info.point.x, info.point.y)}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.6 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              position: 'absolute',
-              left: '50%',
-              bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 116px)',
-              marginLeft: -55,
-              cursor: 'grab',
-              zIndex: 30,
-              touchAction: 'none',
-            }}
-          >
-            <motion.img
-              src="/haalm/ui/fx/blanket.svg"
-              alt=""
-              animate={{ rotate: [-1.5, 1.5, -1.5] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              style={{
-                width: 110,
-                display: 'block',
-                filter: 'drop-shadow(0 6px 14px rgba(31,31,31,0.18))',
-                pointerEvents: 'none',
-              }}
-            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -470,7 +447,7 @@ export function Care() {
       {/* sponge follows the finger while scrubbing */}
       {mode === 'scrubbing' && spongePos && (
         <img
-          src="/haalm/ui/fx/sponge.svg"
+          src="/haalm/ui/runtime/care/wash-kit.png"
           alt=""
           style={{
             position: 'fixed',

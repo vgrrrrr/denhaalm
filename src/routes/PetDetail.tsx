@@ -2,7 +2,11 @@ import { motion } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { BackButton, Icon, SoftButton, StatusBar } from '../components/ui'
 import { PetSprite } from '../components/PetSprite'
+import { AlmActionBar } from '../components/AlmActionBar'
+import { HealthCarePanel } from '../components/HealthCarePanel'
 import { characterById, type CharacterId } from '../data/characters'
+import { accessoryById } from '../data/accessories'
+import { MEDICINE_PRICE } from '../data/economy'
 import { locationById } from '../data/locations'
 import {
   daysTogether,
@@ -19,6 +23,11 @@ export function PetDetail() {
   const navigate = useNavigate()
   const pet = useHaalm((s) => s.pets[(id ?? '') as CharacterId])
   const setActivePet = useHaalm((s) => s.setActivePet)
+  const equippedAccessoryId = useHaalm((s) => s.equippedAccessories?.[pet?.id ?? (id as CharacterId)])
+  const medicine = useHaalm((s) => s.medicine ?? 0)
+  const coins = useHaalm((s) => s.coins ?? 0)
+  const buyMedicine = useHaalm((s) => s.buyMedicine)
+  const healPet = useHaalm((s) => s.healPet)
   const { t, loc } = useT()
 
   if (!pet) {
@@ -34,6 +43,7 @@ export function PetDetail() {
   const { level, into, needed } = levelFromXp(pet.xp)
   const stage = stageOf(pet)
   const location = locationById(pet.location)
+  const equippedAccessory = accessoryById(equippedAccessoryId ?? '')
 
   return (
     <div className="page px">
@@ -42,7 +52,7 @@ export function PetDetail() {
         <button
           onClick={() => {
             setActivePet(pet.id)
-            navigate('/home')
+            navigate('/alm')
           }}
           style={{
             fontSize: 12,
@@ -60,7 +70,7 @@ export function PetDetail() {
       <div style={{ textAlign: 'center', marginTop: 10 }}>
         <h1 style={{ fontSize: 26 }}>{char.name}</h1>
         <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
-          {loc(stage === 'baby' ? char.babySpecies : char.species)} · Lv. {level}
+          {loc(stage === 'young' ? char.babySpecies : char.species)} · Lv. {level} · {t(`pet.age.${stage}`)}
         </p>
       </div>
 
@@ -70,14 +80,22 @@ export function PetDetail() {
         transition={{ duration: 0.3 }}
         style={{ display: 'flex', justifyContent: 'center', margin: '18px 0 8px' }}
       >
-        <PetSprite id={pet.id} stage={stage} width="min(48vw, 200px)" sleeping={pet.sleeping} wander={false} />
+        <div style={{ position: 'relative', width: 'min(60vw, 240px)' }}>
+          <PetSprite id={pet.id} stage={stage} width="100%" sleeping={pet.sleeping} wander={false} />
+          {pet.health === 'sick' && (
+            <img src="/haalm/ui/runtime/overlays/sickness-soft.png" alt="" style={{ position: 'absolute', inset: '-12%', width: '124%', height: '124%', objectFit: 'contain', pointerEvents: 'none', opacity: 0.48, zIndex: 3 }} />
+          )}
+          {equippedAccessory && (!equippedAccessory.allowedFor || equippedAccessory.allowedFor.includes(pet.id)) && (
+            <AccessoryOverlay asset={equippedAccessory.asset} anchor={equippedAccessory.anchor} />
+          )}
+        </div>
       </motion.div>
 
       {/* level progress */}
       <div style={{ margin: '10px 0 22px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>
           <span>
-            {stage === 'baby'
+            {stage !== 'adult'
               ? t('pet.growsat', { n: GROWN_LEVEL })
               : t('pet.grown')}
           </span>
@@ -113,8 +131,24 @@ export function PetDetail() {
       </div>
 
       <div style={{ marginTop: 28, display: 'flex', gap: 10 }}>
-        <SoftButton onClick={() => navigate(`/care/${pet.id}`)}>{t('pet.care')}</SoftButton>
-        <SoftButton variant="cream" onClick={() => navigate('/play')}>
+        <AlmActionBar pet={pet} style={{ flex: 1 }} />
+      </div>
+
+      <div style={{ marginTop: 14 }}>
+        <HealthCarePanel
+          health={pet.health}
+          medicineCount={medicine}
+          medicinePrice={MEDICINE_PRICE}
+          canAfford={coins >= MEDICINE_PRICE}
+          onBuyMedicine={buyMedicine}
+          onHeal={() => healPet(pet.id)}
+          language={useHaalm.getState().language}
+        />
+      </div>
+
+      <div style={{ marginTop: 14, display: 'flex', gap: 10 }}>
+        <SoftButton disabled={pet.health !== 'healthy'} onClick={() => navigate(`/care/${pet.id}`)}>{t('pet.care')}</SoftButton>
+        <SoftButton disabled={pet.health !== 'healthy'} variant="cream" onClick={() => navigate('/play')}>
           {t('pet.play')}
         </SoftButton>
       </div>
@@ -131,5 +165,24 @@ function MetaRow({ icon, label, value }: { icon: string; label: string; value: s
       </span>
       <span style={{ fontSize: 14 }}>{value}</span>
     </div>
+  )
+}
+
+function AccessoryOverlay({ asset, anchor }: { asset: string; anchor: 'head' | 'neck' | 'back' }) {
+  const placement =
+    anchor === 'neck'
+      ? { left: '27%', top: '35%', width: '46%' }
+      : anchor === 'back'
+        ? { right: '-3%', top: '42%', width: '42%' }
+        : { left: '27%', top: '-2%', width: '46%' }
+  return (
+    <motion.img
+      src={asset}
+      alt=""
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      style={{ position: 'absolute', height: 'auto', objectFit: 'contain', pointerEvents: 'none', zIndex: 4, ...placement }}
+    />
   )
 }

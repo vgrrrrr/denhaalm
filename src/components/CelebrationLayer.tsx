@@ -2,15 +2,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { SoftButton, softSpring } from './ui'
 import { ParticleBurst } from './Particles'
-import { characterById, spriteSrc, type CharacterId } from '../data/characters'
-import { GROWN_LEVEL, levelFromXp, useHaalm, type PetState } from '../store/haalm'
+import { characterById, portraitSrc, spriteSrc, type AgeStage, type CharacterId } from '../data/characters'
+import { GROWN_LEVEL, MIDDLE_LEVEL, levelFromXp, useHaalm, type PetState } from '../store/haalm'
 import { useT } from '../i18n'
 
 interface Pending {
   id: CharacterId
   level: number
-  evolution: boolean
+  evolution: { from: AgeStage; to: AgeStage } | null
 }
+
+const stageForLevel = (level: number): AgeStage => level >= GROWN_LEVEL ? 'adult' : level >= MIDDLE_LEVEL ? 'middle' : 'young'
 
 /**
  * Watches every pet's level and plays a level-up toast — or the full
@@ -31,7 +33,11 @@ export function CelebrationLayer() {
         return {
           id: pet.id,
           level,
-          evolution: level >= GROWN_LEVEL && seen < GROWN_LEVEL,
+          evolution: level >= GROWN_LEVEL && seen < GROWN_LEVEL
+            ? { from: 'middle', to: 'adult' }
+            : level >= MIDDLE_LEVEL && seen < MIDDLE_LEVEL
+              ? { from: 'young', to: 'middle' }
+              : null,
         }
       }
     }
@@ -83,7 +89,7 @@ export function CelebrationLayer() {
         >
           <div style={{ position: 'relative', width: 30, height: 30 }}>
             <img
-              src={`/haalm/characters/${active.id}/portrait.png`}
+              src={portraitSrc(active.id, stageForLevel(active.level))}
               alt=""
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
@@ -113,7 +119,7 @@ export function CelebrationLayer() {
           }}
         >
           <motion.img
-            src="/haalm/ui/overlays/confetti.svg"
+            src="/haalm/ui/runtime/overlays/unlock-arrival.png"
             alt=""
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 0.85, scale: 1.05 }}
@@ -138,13 +144,13 @@ export function CelebrationLayer() {
             transition={{ delay: 0.15 }}
             style={{ fontSize: 30, lineHeight: 1.1, marginTop: 6 }}
           >
-            {t('cele.grewup', { name: char.name })}
+            {t('cele.grewstage', { name: char.name })}
           </motion.h1>
 
           <div style={{ position: 'relative', margin: '26px 0', height: 'min(52vw, 240px)' }}>
             {/* baby fades away */}
             <motion.img
-              src={spriteSrc(active.id, 'baby')}
+              src={spriteSrc(active.id, active.evolution.from)}
               alt=""
               initial={{ opacity: 1, scale: 1 }}
               animate={{ opacity: 0, scale: 0.86 }}
@@ -160,7 +166,7 @@ export function CelebrationLayer() {
             />
             {/* grown form blooms in */}
             <motion.img
-              src={spriteSrc(active.id, 'grown')}
+              src={spriteSrc(active.id, active.evolution.to)}
               alt={char.name}
               initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: [0.7, 1.05, 1] }}
