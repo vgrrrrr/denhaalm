@@ -21,6 +21,16 @@ import { portraitStateOf, stageOf, useActivePet, useHaalm, type PetState } from 
 import { useT } from '../i18n'
 
 const MAP_TRANSITION = { duration: 0.52, ease: [0.22, 0.8, 0.24, 1] as const }
+const PHASE_ICON: Record<WorldPhase, string> = {
+  day: '/haalm/ui/runtime/overlays/time-day.png',
+  evening: '/haalm/ui/runtime/overlays/time-evening.png',
+  night: '/haalm/ui/runtime/overlays/time-night.png',
+}
+const PHASE_LABEL: Record<WorldPhase, { de: string; en: string }> = {
+  day: { de: 'Tageszeit: Tag', en: 'Time of day: daytime' },
+  evening: { de: 'Tageszeit: Abend', en: 'Time of day: evening' },
+  night: { de: 'Tageszeit: Nacht', en: 'Time of day: night' },
+}
 
 export function Alm() {
   const navigate = useNavigate()
@@ -177,6 +187,8 @@ function MapScene({
   t: ReturnType<typeof useT>['t']
   loc: ReturnType<typeof useT>['loc']
 }) {
+  const language = useHaalm((state) => state.language)
+
   return (
     <motion.section
       initial={{ opacity: 0 }}
@@ -193,20 +205,35 @@ function MapScene({
           zIndex: 12,
           display: 'flex',
           alignItems: 'center',
-          gap: 7,
+          gap: 8,
         }}
       >
-        <span className="glass--chip" aria-label={phase} style={{ width: 36, height: 36, padding: 6, borderRadius: 999, display: 'grid', placeItems: 'center' }}>
-          <img src="/haalm/ui/runtime/overlays/time-of-day.png" alt="" width={22} height={22} style={{ objectFit: 'contain' }} />
+        <span className="glass--chip" aria-label={PHASE_LABEL[phase][language]} style={{ width: 44, height: 44, padding: 5, borderRadius: 999, display: 'grid', placeItems: 'center' }}>
+          <AnimatePresence initial={false} mode="wait">
+            <motion.img
+              key={phase}
+              src={PHASE_ICON[phase]}
+              alt=""
+              width={33}
+              height={33}
+              initial={{ opacity: 0, scale: 0.82, rotate: -6 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.82, rotate: 6 }}
+              transition={{ duration: 0.22 }}
+              style={{ objectFit: 'contain', display: 'block' }}
+            />
+          </AnimatePresence>
         </span>
         <button
           type="button"
           onClick={onShop}
           aria-label={t('shop.title')}
           className="glass--chip"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 36, borderRadius: 999, padding: '7px 11px', fontSize: 11, fontWeight: 500 }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 44, borderRadius: 999, padding: '7px 13px 7px 9px', fontSize: 12, fontWeight: 500 }}
         >
-          <img src="/haalm/ui/runtime/icons/coin.png" alt="" width={17} height={17} />
+          <span aria-hidden="true" style={{ width: 30, height: 30, borderRadius: 999, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,0.48)' }}>
+            <img src="/haalm/ui/runtime/icons/coin.png" alt="" width={24} height={24} style={{ display: 'block', objectFit: 'contain' }} />
+          </span>
           {coins}
         </button>
         <motion.button
@@ -215,9 +242,11 @@ function MapScene({
           whileTap={{ scale: 0.92 }}
           aria-label={t('alm.scan')}
           className="glass--chip"
-          style={{ width: 36, height: 36, padding: 7, borderRadius: 999, display: 'grid', placeItems: 'center' }}
+          style={{ width: 44, height: 44, padding: 5, borderRadius: 999, display: 'grid', placeItems: 'center' }}
         >
-          <img src="/haalm/ui/runtime/icons/scan.png" alt="" width={20} height={20} />
+          <span aria-hidden="true" style={{ width: 32, height: 32, borderRadius: 999, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,0.56)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.72)' }}>
+            <img src="/haalm/ui/runtime/icons/scan.png" alt="" width={25} height={25} style={{ display: 'block', objectFit: 'contain' }} />
+          </span>
         </motion.button>
       </div>
 
@@ -299,22 +328,6 @@ function MapScene({
                   animate={{ y: [0, -3, 0], rotate: [0, index % 2 === 0 ? -2 : 2, 0], scale: [1, 1.03, 1] }}
                   transition={{ duration: 3.2 + index * 0.35, repeat: Infinity, ease: 'easeInOut' }}
                   style={{ position: 'absolute', left: '50%', bottom: active ? 3 : 4, translate: '-50% 0', width: active ? 54 : 50, height: active ? 54 : 50, objectFit: 'contain', zIndex: 2, filter: 'drop-shadow(0 3px 3px rgba(31,31,31,0.2))' }}
-                />
-                <span
-                  aria-hidden="true"
-                  style={{
-                    position: 'absolute',
-                    left: '50%',
-                    bottom: 2,
-                    translate: '-50% 0',
-                    width: active ? 53 : 49,
-                    height: 9,
-                    borderRadius: '0 0 50% 50%',
-                    background: 'linear-gradient(to bottom, rgba(255,250,245,0.78), rgba(255,250,245,0.97))',
-                    borderBottom: active ? '2px solid rgba(255,255,255,0.98)' : '1px solid rgba(255,255,255,0.94)',
-                    zIndex: 3,
-                    pointerEvents: 'none',
-                  }}
                 />
               </motion.button>
             )

@@ -304,22 +304,28 @@ export function PetSprite({
         />
       )}
 
-      {/* Raster bedtime cue complements the production-v1 sleep frames. */}
+      {/* The pyjama/sleep frames carry bedtime on their own; a tiny zZ cue is
+          enough and keeps the scene calmer than the previous blanket asset. */}
       {sleeping && (
-        <motion.img
-          src="/haalm/ui/runtime/care/sleep-set.png"
-          alt=""
-          animate={{ opacity: [0.5, 0.8, 0.5], y: [0, -4, 0] }}
+        <motion.span
+          aria-hidden="true"
+          animate={{ opacity: [0.38, 0.76, 0.38], y: [0, -5, 0] }}
           transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
           style={{
             position: 'absolute',
-            top: '-18%',
-            right: '-14%',
-            width: '46%',
+            top: '-6%',
+            right: '2%',
             pointerEvents: 'none',
             zIndex: 5,
+            color: 'var(--lavender)',
+            fontSize: 17,
+            fontWeight: 600,
+            letterSpacing: '0.04em',
+            textShadow: '0 2px 5px rgba(31,31,31,0.12)',
           }}
-        />
+        >
+          zZ
+        </motion.span>
       )}
 
       {reaction && <ParticleBurst kind={reaction.kind} trigger={reaction.seq} />}

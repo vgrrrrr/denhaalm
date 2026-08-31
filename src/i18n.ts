@@ -11,7 +11,7 @@ const STRINGS = {
   /* navigation */
   'nav.home': { de: 'Zuhause', en: 'Home' },
   'nav.play': { de: 'Spielen', en: 'Play' },
-  'nav.alm': { de: 'Halm', en: 'Halm' },
+  'nav.alm': { de: 'Haalm', en: 'Haalm' },
   'nav.herd': { de: 'Herde', en: 'Herd' },
   'nav.profile': { de: 'Profil', en: 'Profile' },
 

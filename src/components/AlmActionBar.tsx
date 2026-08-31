@@ -20,6 +20,11 @@ export interface AlmActionBarProps {
   onFeedback?: (message: string) => void
   /** Lets the surrounding scene animate the selected pet during the action. */
   onActionAnimation?: (action: AlmAction | null) => void
+  /**
+   * Turns the tiles into navigation shortcuts. When provided, the component
+   * delegates the action without changing care state on this screen.
+   */
+  onActionRequest?: (action: AlmAction) => void
   /** Use the tighter layout when the bar sits inside a scene sheet. */
   compact?: boolean
   style?: CSSProperties
@@ -50,6 +55,7 @@ export function AlmActionBar({
   disabledReason,
   onFeedback,
   onActionAnimation,
+  onActionRequest,
   compact = false,
   style,
 }: AlmActionBarProps) {
@@ -150,6 +156,10 @@ export function AlmActionBar({
   }
 
   const startAction = (key: AlmAction) => {
+    if (onActionRequest) {
+      onActionRequest(key)
+      return
+    }
     if (interaction) return
     const blocked = blockedFor(key)
     if (blocked) {
@@ -245,7 +255,7 @@ export function AlmActionBar({
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: compact ? 6 : 8 }}>
         {definitions.map((action) => {
-          const blocked = Boolean(blockedFor(action.key))
+          const blocked = onActionRequest ? false : Boolean(blockedFor(action.key))
           return (
             <motion.button
               key={action.key}
